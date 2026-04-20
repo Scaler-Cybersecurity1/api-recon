@@ -1,0 +1,2613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Scaler Lab · Cybersecurity · API Reconnaissance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Titillium+Web:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --nav-bg: #0b0f1a;
+  --nav-border: #1a2234;
+  --nav-fg: #e8edf5;
+  --nav-muted: #8592a6;
+  --nav-accent: #22c55e;
+  --nav-height: 56px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; min-height: 100vh; }
+body {
+  font-family: 'Inter', system-ui, -apple-system, Segoe UI, sans-serif;
+  background: #080b14; color: #e6edf3;
+  font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased;
+}
+button { cursor: pointer; font-family: inherit; border: none; background: none; color: inherit; }
+a { color: inherit; text-decoration: none; }
+input, select, textarea { font-family: inherit; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible {
+  outline: 2px solid #22c55e; outline-offset: 2px;
+}
+
+/* ============================================================= */
+/* GLOBAL TOP NAV                                                 */
+/* ============================================================= */
+.gnav {
+  position: sticky; top: 0; z-index: 100;
+  height: var(--nav-height);
+  background: var(--nav-bg);
+  border-bottom: 1px solid var(--nav-border);
+  padding: 0 28px;
+  display: flex; align-items: center; gap: 20px;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.03) inset;
+  font-family: 'Inter', sans-serif;
+}
+.gnav-brand {
+  display: flex; align-items: center; gap: 14px;
+  color: var(--nav-fg); font-size: 15px; letter-spacing: -0.1px;
+}
+.gnav-mark {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: linear-gradient(135deg, #22c55e 0%, #0f7c3a 100%);
+  display: flex; align-items: center; justify-content: center;
+  color: #05110b; font-weight: 800; font-size: 15px; letter-spacing: -0.5px;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.15) inset, 0 6px 14px rgba(34,197,94,0.25);
+}
+.gnav-name { font-weight: 700; color: #ffffff; letter-spacing: -0.2px; }
+.gnav-sep {
+  width: 1px; height: 18px; background: #2a3246; display: inline-block;
+}
+.gnav-product { color: #b8c3d6; font-weight: 400; letter-spacing: 0.1px; }
+
+.gnav-crumb {
+  display: flex; align-items: center; gap: 10px;
+  color: var(--nav-muted); font-size: 13px;
+}
+.gnav-crumb .slash { color: #3d4661; }
+.gnav-crumb .here { color: #d8dfec; font-weight: 500; }
+.gnav-back {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px; color: #c5cee0; font-size: 13px;
+  border-radius: 6px; border: 1px solid #1f2a3f; background: #0e1424;
+  transition: border-color .15s, background .15s, color .15s;
+}
+.gnav-back:hover { border-color: #2f3a53; color: #ffffff; background: #131b2e; }
+.gnav-back svg { width: 12px; height: 12px; }
+
+.gnav-right {
+  margin-left: auto; display: flex; align-items: center; gap: 14px;
+}
+.gnav-status {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 12px; border-radius: 999px;
+  background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.28);
+  color: #86efac; font-size: 12px; font-weight: 500; letter-spacing: 0.1px;
+}
+.gnav-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--nav-accent);
+  box-shadow: 0 0 0 3px rgba(34,197,94,0.18);
+  animation: pulseDot 2s infinite ease-in-out;
+}
+@keyframes pulseDot { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+.gnav-user {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: linear-gradient(135deg, #2a3755, #141a2a); color: #b8c3d6;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 600; letter-spacing: 0.3px;
+  border: 1px solid #222c45;
+}
+
+@media (max-width: 680px) {
+  .gnav { padding: 0 16px; gap: 12px; }
+  .gnav-crumb { display: none; }
+  .gnav-status span.label { display: none; }
+  .gnav-status { padding: 6px 9px; }
+}
+
+/* ============================================================= */
+/* HOME                                                           */
+/* ============================================================= */
+.home {
+  min-height: calc(100vh - var(--nav-height));
+  background:
+    radial-gradient(900px 520px at 18% 0%, rgba(34,197,94,0.09) 0%, transparent 55%),
+    radial-gradient(760px 420px at 92% 100%, rgba(245,158,11,0.06) 0%, transparent 60%),
+    #070a12;
+  padding: 96px 32px 64px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+.home::before {
+  content: ''; position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 35%, #000 40%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 35%, #000 40%, transparent 100%);
+  pointer-events: none;
+}
+.home-inner { max-width: 1060px; width: 100%; margin: 0 auto; position: relative; }
+
+.home-hero {
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center; margin-bottom: 64px;
+}
+.home-tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 14px; border-radius: 999px;
+  background: rgba(34,197,94,0.06);
+  border: 1px solid rgba(34,197,94,0.22);
+  color: #86efac; font-size: 12px; font-weight: 500;
+  letter-spacing: 0.3px;
+}
+.home-tag .pip {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,0.15);
+}
+.home h1 {
+  font-size: 64px; font-weight: 700; margin-top: 22px;
+  letter-spacing: -2.2px; color: #ffffff; line-height: 1;
+}
+.home h1 .grad {
+  background: linear-gradient(90deg, #22c55e 0%, #4ade80 50%, #86efac 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; font-style: italic; font-weight: 700;
+}
+.home .lede {
+  color: #8c9ab3; margin-top: 18px; font-size: 16px;
+  max-width: 460px; line-height: 1.55;
+}
+
+.home .grid {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 20px; margin-top: 8px;
+}
+.lab-card {
+  background: linear-gradient(180deg, rgba(16,22,40,0.8) 0%, rgba(9,13,24,0.8) 100%);
+  border: 1px solid rgba(255,255,255,0.06); border-radius: 18px;
+  padding: 32px;
+  transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column;
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+  min-height: 260px;
+}
+.lab-card::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(520px circle at 0% 0%, rgba(34,197,94,0.08), transparent 55%);
+  opacity: 0; transition: opacity .35s ease;
+  pointer-events: none;
+}
+.lab-card.c4::before { background: radial-gradient(520px circle at 100% 0%, rgba(245,158,11,0.08), transparent 55%); }
+.lab-card:hover::before { opacity: 1; }
+.lab-card:hover {
+  transform: translateY(-4px); border-color: rgba(34,197,94,0.35);
+  box-shadow: 0 20px 50px -20px rgba(0,0,0,0.7), 0 0 0 1px rgba(34,197,94,0.08);
+}
+.lab-card.c4:hover {
+  border-color: rgba(245,158,11,0.35);
+  box-shadow: 0 20px 50px -20px rgba(0,0,0,0.7), 0 0 0 1px rgba(245,158,11,0.08);
+}
+
+.lab-card-top {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.lab-icon {
+  width: 42px; height: 42px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(34,197,94,0.08);
+  border: 1px solid rgba(34,197,94,0.2);
+  color: #4ade80;
+}
+.lab-icon svg { width: 20px; height: 20px; }
+.lab-card.c4 .lab-icon {
+  background: rgba(245,158,11,0.08);
+  border-color: rgba(245,158,11,0.2);
+  color: #fbbf24;
+}
+.lab-arrow {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: #5c6b85;
+  transition: transform .25s ease, color .25s ease, background .25s ease;
+}
+.lab-arrow svg { width: 16px; height: 16px; }
+.lab-card:hover .lab-arrow { color: #4ade80; background: rgba(34,197,94,0.1); transform: translate(3px, -3px); }
+.lab-card.c4:hover .lab-arrow { color: #fbbf24; background: rgba(245,158,11,0.1); }
+
+.lab-card h2 {
+  font-size: 20px; margin-top: 40px; font-weight: 600;
+  letter-spacing: -0.4px; color: #ffffff;
+  line-height: 1.25;
+}
+.lab-card p {
+  color: #7e8ca5; margin-top: 10px; font-size: 13.5px; line-height: 1.55;
+}
+.lab-card .foot {
+  margin-top: auto; padding-top: 24px;
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px; color: #55627c; letter-spacing: 0.2px;
+}
+.lab-card .foot .dot { width: 3px; height: 3px; border-radius: 50%; background: #2e374d; }
+
+@media (max-width: 768px) {
+  .home { padding: 56px 20px 40px; }
+  .home-hero { margin-bottom: 40px; }
+  .home h1 { font-size: 40px; letter-spacing: -1.3px; }
+  .home .lede { font-size: 14px; }
+  .home .grid { grid-template-columns: 1fr; gap: 16px; }
+  .lab-card { padding: 24px; min-height: 0; }
+  .lab-card h2 { margin-top: 28px; font-size: 18px; }
+}
+
+/* ============================================================= */
+/* LAB 3 — ClearPay Developer Portal (modern 3-col dev portal)    */
+/* ============================================================= */
+.dp-root {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: #07091a; color: #e4ecf5;
+  min-height: calc(100vh - var(--nav-height));
+}
+.dp-subnav {
+  height: 56px;
+  background: rgba(7,9,26,0.85);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid #141b2d;
+  padding: 0 28px; display: flex; align-items: center; gap: 20px;
+  position: sticky; top: var(--nav-height); z-index: 18;
+}
+.dp-brand {
+  display: flex; align-items: center; gap: 10px;
+  color: #e4ecf5; font-size: 14px; font-weight: 600; letter-spacing: -0.1px;
+}
+.dp-brand-mark {
+  width: 26px; height: 26px; border-radius: 7px;
+  background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+  color: #05110b; display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 13px; letter-spacing: -0.3px;
+}
+.dp-brand .slash { color: #2a3446; margin: 0 4px; font-weight: 400; }
+.dp-brand .section { color: #93a3ba; font-weight: 500; }
+.dp-version {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 6px;
+  background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.22);
+  color: #6ee7b7; font-size: 11px; font-weight: 600;
+  font-family: 'JetBrains Mono', monospace; letter-spacing: 0.2px;
+}
+.dp-search {
+  flex: 1; max-width: 380px; margin-left: auto;
+  position: relative;
+}
+.dp-search input {
+  width: 100%; height: 34px; padding: 0 54px 0 36px;
+  background: #0d1322; border: 1px solid #1a2238;
+  border-radius: 8px; color: #e4ecf5; font-size: 13px;
+  transition: border-color .15s, background .15s;
+}
+.dp-search input::placeholder { color: #4a5670; }
+.dp-search input:hover { border-color: #2a3446; }
+.dp-search input:focus { outline: none; border-color: #10b981; background: #07091a; box-shadow: 0 0 0 3px rgba(16,185,129,0.1); }
+.dp-search .icn { position: absolute; left: 12px; top: 10px; width: 14px; height: 14px; color: #5a6b82; pointer-events: none; }
+.dp-search .kbd {
+  position: absolute; right: 6px; top: 5px;
+  font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #5a6b82;
+  padding: 4px 7px; background: #0a0e1a; border: 1px solid #1a2238;
+  border-radius: 4px; line-height: 1;
+}
+
+.dp-layout {
+  display: grid; grid-template-columns: 260px minmax(0, 1fr);
+  max-width: 1540px; margin: 0 auto;
+}
+.dp-sidebar {
+  position: sticky;
+  top: calc(var(--nav-height) + 56px);
+  height: calc(100vh - var(--nav-height) - 56px);
+  overflow-y: auto;
+  padding: 28px 14px 40px;
+  border-right: 1px solid #141b2d;
+  scrollbar-width: thin; scrollbar-color: #1e2639 transparent;
+}
+.dp-sidebar::-webkit-scrollbar { width: 6px; }
+.dp-sidebar::-webkit-scrollbar-thumb { background: #1e2639; border-radius: 3px; }
+.dp-sidebar::-webkit-scrollbar-track { background: transparent; }
+
+.dp-side-section { margin-bottom: 24px; }
+.dp-side-label {
+  font-size: 10.5px; color: #6b7a95;
+  text-transform: uppercase; letter-spacing: 1.3px;
+  font-weight: 700; padding: 0 12px; margin-bottom: 8px;
+  display: flex; align-items: center; gap: 8px;
+}
+.dp-side-label .count {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #4a5670;
+  font-weight: 500; letter-spacing: 0; margin-left: auto;
+  padding: 2px 6px; background: #0d1322; border-radius: 4px;
+}
+.dp-side-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 7px 12px; border-radius: 6px;
+  font-size: 13px; color: #a4b0c6;
+  cursor: pointer; transition: background .12s, color .12s;
+}
+.dp-side-item:hover { background: #111827; color: #e4ecf5; }
+.dp-side-item.active { background: rgba(16,185,129,0.08); color: #ffffff; }
+.dp-side-method {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px; font-weight: 700;
+  min-width: 40px; text-align: center;
+  padding: 3px 0; border-radius: 3px;
+  letter-spacing: 0.4px; opacity: 0.9;
+}
+.dp-side-method.get { color: #10b981; background: rgba(16,185,129,0.1); }
+.dp-side-method.post { color: #3b82f6; background: rgba(59,130,246,0.1); }
+.dp-side-method.put { color: #f59e0b; background: rgba(245,158,11,0.1); }
+.dp-side-method.delete { color: #ef4444; background: rgba(239,68,68,0.1); }
+.dp-side-item .path {
+  flex: 1; font-family: 'JetBrains Mono', monospace; font-size: 12.5px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.dp-main {
+  padding: 52px 56px 96px;
+  max-width: 1220px; min-width: 0;
+}
+
+/* Overview */
+.dp-overview { margin-bottom: 72px; }
+.dp-kicker {
+  color: #10b981; font-size: 11.5px; font-weight: 600;
+  letter-spacing: 2.2px; text-transform: uppercase;
+}
+.dp-title {
+  font-size: 40px; font-weight: 700; color: #ffffff;
+  margin-top: 14px; letter-spacing: -1.2px; line-height: 1.1;
+}
+.dp-lede {
+  color: #93a3ba; margin-top: 18px; font-size: 15.5px;
+  line-height: 1.65; max-width: 720px;
+}
+.dp-chip-row { display: flex; gap: 10px; margin-top: 24px; flex-wrap: wrap; }
+.dp-chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 12px; border-radius: 999px;
+  background: #0d1322; border: 1px solid #1a2238;
+  font-size: 12px; color: #a4b0c6; font-weight: 500;
+}
+.dp-chip .ico { width: 12px; height: 12px; color: #6ee7b7; }
+
+.dp-server {
+  margin-top: 32px; padding: 14px 18px;
+  background: #0a0f1f; border: 1px solid #141b2d; border-radius: 10px;
+  display: flex; align-items: center; gap: 16px;
+}
+.dp-server .lbl {
+  font-size: 10.5px; color: #6b7a95; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1.3px;
+  padding: 3px 8px; background: #0d1322; border: 1px solid #1a2238;
+  border-radius: 4px;
+}
+.dp-server code {
+  font-family: 'JetBrains Mono', monospace; font-size: 13.5px; color: #e4ecf5;
+  flex: 1;
+}
+.dp-server .copy {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 10px; border-radius: 6px;
+  color: #6b7a95; font-size: 11.5px; font-weight: 500;
+  transition: color .12s, background .12s;
+}
+.dp-server .copy:hover { color: #10b981; background: rgba(16,185,129,0.08); }
+.dp-server .copy svg { width: 13px; height: 13px; }
+
+/* Section */
+.dp-section { margin-top: 84px; scroll-margin-top: 140px; }
+.dp-section-hd {
+  padding-bottom: 20px; border-bottom: 1px solid #141b2d;
+  margin-bottom: 36px;
+  display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap;
+}
+.dp-section-hd h2 {
+  font-size: 28px; font-weight: 700; color: #ffffff; letter-spacing: -0.6px;
+  display: inline-flex; align-items: center; gap: 12px;
+}
+.dp-tag-pill {
+  font-size: 10.5px; color: #6ee7b7; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 4px;
+  background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25);
+}
+.dp-section-hd .desc { color: #7e8ca5; font-size: 13.5px; flex: 1; min-width: 220px; }
+
+/* Endpoint */
+.dp-op {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: 40px; margin-bottom: 88px;
+  scroll-margin-top: 140px;
+}
+.dp-op-hd {
+  grid-column: 1 / -1;
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 16px;
+  background: #0d1322; border: 1px solid #1a2238;
+  border-radius: 10px;
+  flex-wrap: wrap;
+}
+.dp-method {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px; font-weight: 700; letter-spacing: 0.5px;
+  padding: 6px 10px; border-radius: 5px; color: #fff;
+  min-width: 60px; text-align: center;
+}
+.dp-method.get { background: #10b981; }
+.dp-method.post { background: #3b82f6; }
+.dp-method.put { background: #f59e0b; color: #1a1004; }
+.dp-method.delete { background: #ef4444; }
+.dp-op-path {
+  font-family: 'JetBrains Mono', monospace; font-size: 14.5px;
+  font-weight: 600; color: #e4ecf5; word-break: break-all; flex: 1;
+}
+.dp-op-path .param { color: #6ee7b7; }
+.dp-op-auth {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px;
+  font-size: 11px; font-weight: 600;
+  background: rgba(16,185,129,0.08);
+  border: 1px solid rgba(16,185,129,0.25);
+  color: #6ee7b7;
+}
+.dp-op-auth.none {
+  background: rgba(239,68,68,0.08);
+  border-color: rgba(239,68,68,0.3);
+  color: #fca5a5;
+}
+.dp-op-auth svg { width: 11px; height: 11px; }
+
+.dp-op-left, .dp-op-right { min-width: 0; }
+.dp-op-summary {
+  font-size: 22px; font-weight: 700; color: #ffffff;
+  letter-spacing: -0.4px; margin-bottom: 10px;
+}
+.dp-op-desc {
+  color: #93a3ba; font-size: 14.5px; line-height: 1.7; margin-bottom: 8px;
+}
+
+.dp-h {
+  font-size: 10.5px; font-weight: 700; color: #6b7a95;
+  text-transform: uppercase; letter-spacing: 1.3px;
+  margin-top: 32px; margin-bottom: 12px;
+  display: flex; align-items: center; gap: 10px;
+}
+.dp-h::after {
+  content: ''; height: 1px; flex: 1; background: #141b2d;
+}
+
+.dp-param {
+  padding: 14px 0; border-bottom: 1px solid #141b2d;
+}
+.dp-param:last-child { border-bottom: none; padding-bottom: 0; }
+.dp-param-row {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.dp-param-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13.5px; color: #ffffff; font-weight: 600;
+}
+.dp-param-type {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px; color: #f59e0b;
+}
+.dp-param-in {
+  font-family: 'JetBrains Mono', monospace; font-size: 10.5px;
+  color: #6b7a95; font-weight: 600;
+  padding: 2px 7px; background: #0d1322;
+  border: 1px solid #1a2238; border-radius: 4px;
+  text-transform: lowercase;
+}
+.dp-param-req {
+  font-size: 10px; color: #ef4444; font-weight: 700;
+  letter-spacing: 0.5px; text-transform: uppercase;
+  padding: 2px 7px; background: rgba(239,68,68,0.1); border-radius: 4px;
+}
+.dp-param-opt {
+  font-size: 10px; color: #6b7a95; font-weight: 700;
+  letter-spacing: 0.5px; text-transform: uppercase;
+}
+.dp-param-desc {
+  color: #93a3ba; font-size: 13.5px; line-height: 1.6; margin-top: 8px;
+}
+.dp-param-ex {
+  display: inline-flex; align-items: center; gap: 8px; margin-top: 10px;
+  font-family: 'JetBrains Mono', monospace; font-size: 11.5px;
+}
+.dp-param-ex .lbl { color: #6b7a95; font-weight: 600; }
+.dp-param-ex .val {
+  color: #6ee7b7; padding: 3px 8px;
+  background: #07091a; border: 1px solid #141b2d; border-radius: 4px;
+}
+
+/* Right column code */
+.dp-code-block {
+  background: #050814; border: 1px solid #141b2d;
+  border-radius: 10px; overflow: hidden;
+  margin-bottom: 16px;
+  position: sticky; top: calc(var(--nav-height) + 76px);
+}
+.dp-code-block.nonsticky { position: static; }
+.dp-code-tabs {
+  display: flex; align-items: center;
+  background: #0a0f1c; border-bottom: 1px solid #141b2d;
+  padding: 0 4px 0 12px;
+  height: 38px;
+}
+.dp-code-tabs .lbl {
+  font-size: 10.5px; color: #6b7a95; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1.3px; margin-right: 14px;
+}
+.dp-code-tab {
+  padding: 0 11px; height: 38px; font-size: 12px; font-weight: 600;
+  color: #6b7a95; cursor: pointer;
+  border-bottom: 2px solid transparent;
+  display: inline-flex; align-items: center;
+  transition: color .12s;
+}
+.dp-code-tab:hover { color: #e4ecf5; }
+.dp-code-tab.active { color: #10b981; border-bottom-color: #10b981; }
+.dp-code-copy {
+  margin-left: auto; padding: 6px 10px; color: #6b7a95; font-size: 11px;
+  border-radius: 6px; display: inline-flex; align-items: center; gap: 5px;
+  transition: background .12s, color .12s;
+}
+.dp-code-copy:hover { color: #10b981; background: rgba(16,185,129,0.08); }
+.dp-code-copy svg { width: 12px; height: 12px; }
+
+.dp-code-body {
+  padding: 18px 20px; overflow-x: auto; background: #050814;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px; line-height: 1.75; color: #d9e4ef;
+  white-space: pre;
+  max-height: 480px; overflow-y: auto;
+}
+.dp-code-body.resp { background: #0a0d1a; }
+.dp-code-body .c { color: #6b7a95; font-style: italic; }
+.dp-code-body .s { color: #6ee7b7; }
+.dp-code-body .n { color: #f59e0b; }
+.dp-code-body .k { color: #60a5fa; font-weight: 600; }
+.dp-code-body .v { color: #6ee7b7; }
+.dp-code-body .p { color: #c792ea; }
+.dp-code-body .q { color: #93a3ba; }
+
+.dp-resp-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px; font-weight: 700;
+  padding: 3px 9px; border-radius: 4px;
+}
+.dp-resp-badge.ok { background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.25); }
+.dp-resp-badge.err { background: rgba(239,68,68,0.1); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+.dp-resp-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+.dp-resp-list { margin-top: 14px; }
+.dp-resp-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 0; border-bottom: 1px solid #141b2d;
+  font-size: 13px; color: #93a3ba;
+}
+.dp-resp-item:last-child { border-bottom: none; }
+.dp-resp-item code {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  color: #60a5fa; padding: 2px 7px; background: #0a0f1f;
+  border: 1px solid #1a2238; border-radius: 4px;
+}
+
+/* Schema table (used inline and in models) */
+.dp-schema {
+  margin-top: 4px;
+  border: 1px solid #141b2d; border-radius: 8px; overflow: hidden;
+  background: #0a0f1f;
+}
+.dp-schema .row {
+  display: grid;
+  grid-template-columns: minmax(140px, max-content) minmax(100px, max-content) 1fr;
+  gap: 14px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #141b2d;
+  align-items: baseline;
+}
+.dp-schema .row:last-child { border-bottom: none; }
+.dp-schema .n {
+  font-family: 'JetBrains Mono', monospace;
+  color: #ffffff; font-weight: 600; font-size: 13px;
+}
+.dp-schema .t {
+  font-family: 'JetBrains Mono', monospace;
+  color: #f59e0b; font-size: 11.5px; font-weight: 500;
+}
+.dp-schema .d { color: #93a3ba; font-size: 13px; line-height: 1.55; }
+
+/* Recon panel (embedded in flow) */
+.dp-recon {
+  margin-top: 88px; padding: 40px 40px 36px;
+  background:
+    radial-gradient(600px 280px at 0% 0%, rgba(16,185,129,0.07), transparent 60%),
+    linear-gradient(180deg, #0d1320 0%, #0a0e1c 100%);
+  border: 1px solid #1e2639; border-radius: 14px;
+  position: relative; overflow: hidden;
+  grid-column: 1 / -1;
+}
+.dp-recon-hd {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 10px;
+}
+.dp-recon-hd .ico {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: rgba(16,185,129,0.1);
+  border: 1px solid rgba(16,185,129,0.25);
+  color: #6ee7b7;
+  display: flex; align-items: center; justify-content: center;
+}
+.dp-recon-hd .ico svg { width: 20px; height: 20px; }
+.dp-recon-hd .sub {
+  font-size: 11px; color: #10b981; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1.8px;
+  margin-bottom: 3px;
+}
+.dp-recon-hd h2 {
+  font-size: 22px; font-weight: 700; color: #ffffff; letter-spacing: -0.3px;
+}
+.dp-recon-hint {
+  color: #93a3ba; font-size: 13.5px; line-height: 1.65;
+  margin-top: 10px; max-width: 760px;
+}
+
+.dp-recon-form {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 18px;
+  margin-top: 28px;
+}
+.dp-rq { display: flex; flex-direction: column; gap: 8px; }
+.dp-rq.full { grid-column: 1 / -1; }
+.dp-rq label {
+  font-size: 12.5px; font-weight: 600; color: #e4ecf5;
+  display: flex; align-items: center; gap: 10px;
+}
+.dp-rq label .num {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: rgba(16,185,129,0.12);
+  border: 1px solid rgba(16,185,129,0.3);
+  color: #6ee7b7;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+}
+.dp-rq input {
+  padding: 12px 16px;
+  background: #07091a; border: 1px solid #1a2238;
+  border-radius: 8px; color: #e4ecf5;
+  font-family: 'JetBrains Mono', monospace; font-size: 13px;
+  transition: border-color .15s, box-shadow .15s;
+}
+.dp-rq input::placeholder { color: #4a5670; }
+.dp-rq input:hover { border-color: #2a3446; }
+.dp-rq input:focus { outline: none; border-color: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.12); }
+
+.dp-recon-actions {
+  grid-column: 1 / -1;
+  display: flex; align-items: center; gap: 14px; margin-top: 8px;
+  flex-wrap: wrap;
+}
+.dp-run {
+  padding: 12px 24px;
+  background: #10b981; color: #05110b;
+  font-weight: 700; font-size: 13px; letter-spacing: 0.2px;
+  border-radius: 8px;
+  display: inline-flex; align-items: center; gap: 8px;
+  transition: background .15s, transform .1s;
+}
+.dp-run:hover { background: #34d399; }
+.dp-run:active { transform: translateY(1px); }
+.dp-run svg { width: 14px; height: 14px; }
+.dp-recon-note {
+  font-size: 12px; color: #6b7a95; font-family: 'JetBrains Mono', monospace;
+}
+.dp-result-slot { grid-column: 1 / -1; }
+
+@media (max-width: 1100px) {
+  .dp-op { grid-template-columns: 1fr; gap: 28px; }
+  .dp-code-block { position: static; }
+}
+@media (max-width: 960px) {
+  .dp-layout { grid-template-columns: 1fr; }
+  .dp-sidebar { display: none; }
+  .dp-main { padding: 36px 24px 64px; }
+  .dp-recon { padding: 26px; }
+  .dp-recon-form { grid-template-columns: 1fr; }
+  .dp-title { font-size: 30px; }
+}
+@media (max-width: 680px) {
+  .dp-subnav { padding: 0 16px; gap: 12px; }
+  .dp-search { display: none; }
+  .dp-section-hd h2 { font-size: 22px; }
+  .dp-op-summary { font-size: 18px; }
+  .dp-op-hd { padding: 10px 12px; }
+  .dp-op-path { font-size: 13px; }
+}
+
+/* retain legacy .sw- classes unused now */
+.sw-root {
+  font-family: 'Titillium Web', 'Inter', sans-serif;
+  background: #081523; color: #d9e4ef; min-height: calc(100vh - var(--nav-height));
+  --swg-blue: #3b82f6; --swg-green: #22c55e; --swg-orange: #f59e0b; --swg-red: #ef4444;
+}
+.sw-topbar {
+  background: #050d17; padding: 14px 28px;
+  display: flex; align-items: center; gap: 16px;
+  border-bottom: 1px solid #0f2132;
+  position: sticky; top: var(--nav-height); z-index: 20;
+}
+.sw-logo { display: flex; align-items: center; gap: 12px; color: #fff; }
+.sw-logo-mark {
+  width: 34px; height: 34px; border-radius: 9px;
+  background: linear-gradient(135deg, #22c55e 0%, #0f7c3a 100%);
+  color: #05110b; display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 17px; letter-spacing: -0.4px;
+}
+.sw-logo-text {
+  font-family: 'Titillium Web'; font-weight: 700; font-size: 19px; letter-spacing: -0.3px;
+}
+.sw-logo-text .sub { color: #7fa3c6; font-size: 12px; font-weight: 400; margin-left: 8px; }
+
+.sw-url-bar {
+  flex: 1; background: #0a1a2a; border: 1px solid #1a3149; border-radius: 6px;
+  padding: 9px 14px; color: #7fa3c6; font-family: 'JetBrains Mono', monospace; font-size: 13px;
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  transition: border-color .15s;
+}
+.sw-url-bar:hover { border-color: #264358; }
+.sw-explore {
+  background: #22c55e; color: #05110b; padding: 9px 20px; font-weight: 700;
+  border-radius: 6px; font-size: 13px; letter-spacing: 0.3px;
+  transition: background .15s;
+}
+.sw-explore:hover { background: #4ade80; }
+
+.sw-info {
+  max-width: 1440px; margin: 0 auto; padding: 36px 28px 20px;
+}
+.sw-info h1 {
+  font-family: 'Titillium Web'; font-size: 38px; font-weight: 700;
+  color: #fff; letter-spacing: -0.6px;
+}
+.sw-info h1 .version {
+  background: #1e3a52; color: #d9e4ef; padding: 3px 12px; border-radius: 99px;
+  font-size: 14px; font-weight: 600; margin-left: 10px; vertical-align: middle;
+}
+.sw-info h1 .badge-oas {
+  background: #7a151c; color: #fff; padding: 3px 10px; border-radius: 4px;
+  font-size: 12px; font-weight: 700; margin-left: 8px; vertical-align: middle; letter-spacing: 0.5px;
+}
+.sw-spec-url { color: #7fa3c6; font-family: 'JetBrains Mono', monospace; font-size: 13px; margin-top: 12px; }
+.sw-spec-url a { color: #60a5fa; }
+.sw-spec-url a:hover { text-decoration: underline; }
+.sw-desc { color: #c0ceda; font-size: 15px; margin-top: 16px; max-width: 920px; line-height: 1.65; }
+.sw-contact { font-size: 13px; color: #7fa3c6; margin-top: 12px; }
+.sw-contact a { color: #60a5fa; }
+.sw-contact a:hover { text-decoration: underline; }
+.sw-contact .sep { margin: 0 10px; color: #3a5167; }
+
+.sw-server {
+  max-width: 1440px; margin: 0 auto; padding: 6px 28px 20px;
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+}
+.sw-server label { font-weight: 700; font-size: 13px; color: #d9e4ef; }
+.sw-server select {
+  background: #0a1a2a; border: 1px solid #1a3149; color: #d9e4ef;
+  padding: 9px 34px 9px 14px; border-radius: 6px; font-size: 13px;
+  appearance: none; min-width: 280px;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%237fa3c6' stroke-width='2.5'%3e%3cpolyline points='6 9 12 15 18 9'/%3e%3c/svg%3e");
+  background-repeat: no-repeat; background-position: right 12px center;
+  transition: border-color .15s;
+}
+.sw-server select:hover { border-color: #264358; }
+.sw-authorize {
+  background: transparent; color: #22c55e; border: 2px solid #22c55e;
+  padding: 7px 18px; border-radius: 6px; font-weight: 700; font-size: 13px;
+  display: inline-flex; align-items: center; gap: 8px; letter-spacing: 0.3px;
+  transition: background .15s, color .15s;
+}
+.sw-authorize:hover { background: #22c55e; color: #05110b; }
+.sw-authorize svg { width: 14px; height: 14px; }
+
+.sw-taggroup { max-width: 1440px; margin: 0 auto 14px; padding: 0 28px; }
+.sw-tag-hd {
+  display: flex; align-items: center; padding: 14px 18px; cursor: pointer;
+  border-bottom: 1px solid #1a3149;
+  transition: border-color .15s;
+}
+.sw-tag-hd:hover { border-bottom-color: #2b465f; }
+.sw-tag-hd h3 {
+  font-family: 'Titillium Web'; font-size: 22px; font-weight: 600;
+  color: #e4edf5; letter-spacing: 0.2px;
+}
+.sw-tag-hd .tag-desc { color: #7fa3c6; font-size: 13px; margin-left: 16px; font-weight: 400; flex: 1; }
+.sw-tag-hd .chev { color: #8caabe; font-size: 14px; transition: transform 0.2s; margin-left: 8px; }
+.sw-tag-hd.collapsed .chev { transform: rotate(-90deg); }
+.sw-tag-body.collapsed { display: none; }
+.sw-tag-body { padding-top: 10px; }
+
+.sw-op {
+  display: flex; align-items: stretch; border-radius: 6px; margin-top: 6px;
+  overflow: hidden; position: relative;
+  border: 1px solid transparent;
+  transition: border-color .15s, box-shadow .15s;
+}
+.sw-op:hover { box-shadow: 0 0 0 1px rgba(255,255,255,0.04); }
+.sw-op.get { background: rgba(34,197,94,0.07); border-color: rgba(34,197,94,0.4); }
+.sw-op.post { background: rgba(59,130,246,0.07); border-color: rgba(59,130,246,0.4); }
+.sw-op.put { background: rgba(245,158,11,0.07); border-color: rgba(245,158,11,0.4); }
+.sw-op.delete { background: rgba(239,68,68,0.07); border-color: rgba(239,68,68,0.4); }
+
+.sw-op-hd { display: flex; align-items: center; gap: 14px; padding: 8px 14px; width: 100%; cursor: pointer; }
+.sw-method {
+  font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700;
+  color: #fff; padding: 7px 0; min-width: 84px; text-align: center; border-radius: 5px;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.15);
+  letter-spacing: 0.3px;
+}
+.sw-method.get { background: #22c55e; }
+.sw-method.post { background: #3b82f6; }
+.sw-method.put { background: #f59e0b; }
+.sw-method.delete { background: #ef4444; }
+
+.sw-op-path {
+  font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 600;
+  color: #e4edf5; word-break: break-all;
+}
+.sw-op-summary {
+  color: #9fb3c7; font-size: 13px; flex: 1; padding-left: 12px; font-weight: 400;
+}
+.sw-auth-icon { padding: 0 6px; color: #22c55e; font-size: 16px; flex-shrink: 0; }
+.sw-auth-icon.none { color: transparent; }
+.sw-chev { color: #9fb3c7; font-size: 12px; transition: transform 0.2s; padding: 0 4px; }
+.sw-op.open .sw-chev { transform: rotate(180deg); }
+
+.sw-op-body {
+  display: none; padding: 22px 26px 26px;
+  background: rgba(0,0,0,0.22); border-top: 1px solid rgba(255,255,255,0.05);
+}
+.sw-op.open .sw-op-body { display: block; }
+.sw-op-desc { font-size: 13.5px; color: #c7d5e3; margin-bottom: 20px; line-height: 1.65; }
+
+.sw-block-h {
+  font-family: 'Titillium Web'; font-size: 15px; font-weight: 700;
+  color: #e4edf5; margin-top: 24px; margin-bottom: 12px;
+  display: flex; align-items: center; gap: 10px;
+}
+.sw-block-h::before {
+  content: ''; width: 3px; height: 14px; background: #22c55e; border-radius: 2px;
+}
+.sw-try {
+  float: right; background: transparent; color: #22c55e; border: 1px solid #22c55e;
+  padding: 5px 14px; border-radius: 5px; font-size: 12px; font-weight: 700;
+  transition: background .15s, color .15s;
+}
+.sw-try:hover { background: #22c55e; color: #05110b; }
+
+.sw-tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.sw-tbl th {
+  text-align: left; padding: 11px 14px; font-weight: 700; color: #c7d5e3;
+  border-bottom: 1px solid #264358; font-size: 11.5px;
+  background: rgba(0,0,0,0.24); text-transform: uppercase; letter-spacing: 0.8px;
+}
+.sw-tbl td { padding: 14px; border-bottom: 1px solid #1a3149; vertical-align: top; }
+.sw-tbl tr:last-child td { border-bottom: none; }
+.sw-tbl .col-name { width: 28%; }
+.sw-pname { font-family: 'JetBrains Mono', monospace; color: #e4edf5; font-weight: 600; font-size: 14px; }
+.sw-required { color: #ef4444; font-size: 11px; font-weight: 700; margin-left: 6px; letter-spacing: 0.3px; }
+.sw-ptype { font-family: 'JetBrains Mono', monospace; color: #f59e0b; font-size: 12px; display: block; margin-top: 5px; }
+.sw-pin { font-family: 'JetBrains Mono', monospace; color: #8eaac0; font-size: 11px; display: block; margin-top: 4px; }
+.sw-pdesc { color: #c0ceda; font-size: 13.5px; line-height: 1.55; }
+.sw-pex {
+  margin-top: 10px; background: #050d17; padding: 8px 12px; border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #22c55e;
+  display: inline-block; border: 1px solid #122334;
+}
+
+.sw-resp-row td.code { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; color: #22c55e; width: 80px; }
+.sw-resp-row.err td.code { color: #ef4444; }
+.sw-sch {
+  background: #050d17; border: 1px solid #1a3149; border-radius: 6px;
+  padding: 16px 18px; font-family: 'JetBrains Mono', monospace; font-size: 13px;
+  color: #d9e4ef; margin-top: 10px; overflow-x: auto; line-height: 1.65;
+}
+.sw-sch .k { color: #60a5fa; }
+.sw-sch .v { color: #22c55e; }
+.sw-sch .t { color: #f59e0b; }
+.sw-sch .c { color: #7fa3c6; font-style: italic; }
+
+.sw-auth-row {
+  display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+  background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.3);
+  border-radius: 6px;
+}
+.sw-auth-row.none {
+  background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.3);
+}
+.sw-auth-row code {
+  color: #22c55e; font-weight: 700; font-family: 'JetBrains Mono', monospace;
+  background: rgba(0,0,0,0.3); padding: 3px 8px; border-radius: 4px; font-size: 12px;
+}
+.sw-auth-row.none code { color: #ef4444; }
+.sw-auth-row .label { font-size: 13px; color: #c7d5e3; font-weight: 500; }
+
+.sw-models-head {
+  max-width: 1440px; margin: 42px auto 10px; padding: 16px 28px; border-top: 1px solid #1a3149;
+  display: flex; align-items: center; gap: 10px;
+}
+.sw-models-head h3 { font-family: 'Titillium Web'; font-size: 22px; color: #e4edf5; font-weight: 600; }
+.sw-models { max-width: 1440px; margin: 0 auto; padding: 0 28px 60px; }
+.sw-model {
+  border: 1px solid #1a3149; border-radius: 6px; margin-bottom: 6px; overflow: hidden;
+}
+.sw-model-hd {
+  padding: 11px 16px; font-family: 'JetBrains Mono', monospace; font-weight: 600;
+  cursor: pointer; display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.02);
+  transition: background .12s;
+}
+.sw-model-hd:hover { background: rgba(255,255,255,0.05); }
+.sw-model-hd .name { color: #e4edf5; font-size: 14px; }
+.sw-model-hd .typ { color: #7fa3c6; font-size: 12px; }
+.sw-model-hd .chev { margin-left: auto; color: #9fb3c7; transition: transform 0.2s; font-size: 12px; }
+.sw-model.open .chev { transform: rotate(180deg); }
+.sw-model-body { display: none; padding: 14px 16px 18px; border-top: 1px solid #1a3149; background: rgba(0,0,0,0.18); }
+.sw-model.open .sw-model-body { display: block; }
+
+/* Recon panel */
+.sw-recon {
+  max-width: 1440px; margin: 14px auto 60px; padding: 36px;
+  background: linear-gradient(180deg, #0e2235 0%, #0a1b2c 100%);
+  border: 1px solid #1e3650; border-radius: 10px;
+}
+.sw-recon-hd {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 8px;
+}
+.sw-recon-hd .icon {
+  width: 36px; height: 36px; border-radius: 9px;
+  background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.3);
+  color: #4ade80; display: flex; align-items: center; justify-content: center;
+}
+.sw-recon-hd .icon svg { width: 18px; height: 18px; }
+.sw-recon h2 {
+  font-family: 'Titillium Web'; font-size: 22px; color: #ffffff; font-weight: 700; letter-spacing: -0.2px;
+}
+.sw-recon .hint {
+  color: #9fb3c7; font-size: 13.5px; margin-bottom: 26px; margin-top: 4px;
+  line-height: 1.6; max-width: 780px;
+}
+.sw-rq { margin-bottom: 20px; }
+.sw-rq label {
+  display: block; font-size: 13px; color: #e4edf5; margin-bottom: 8px;
+  font-weight: 600; letter-spacing: 0.1px;
+}
+.sw-rq label .num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; border-radius: 50%; background: #1e3650;
+  color: #9fb3c7; font-size: 11px; font-weight: 700; margin-right: 10px;
+}
+.sw-rq input {
+  width: 100%; padding: 12px 16px; background: #050d17; border: 1px solid #1a3149;
+  border-radius: 8px; color: #e4edf5; font-size: 13px; font-family: 'JetBrains Mono', monospace;
+  transition: border-color .15s, box-shadow .15s;
+}
+.sw-rq input::placeholder { color: #4a607a; }
+.sw-rq input:hover { border-color: #264358; }
+.sw-rq input:focus { outline: none; border-color: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,0.15); }
+.sw-run {
+  margin-top: 10px; background: #22c55e; color: #05110b; padding: 12px 28px;
+  font-weight: 700; border-radius: 8px; font-size: 13px; letter-spacing: 0.3px;
+  display: inline-flex; align-items: center; gap: 8px;
+  transition: background .15s, transform .15s;
+}
+.sw-run:hover { background: #4ade80; }
+.sw-run:active { transform: translateY(1px); }
+.sw-run svg { width: 14px; height: 14px; }
+
+/* Flag blocks */
+.sw-flag, .wr-flag {
+  margin-top: 26px; padding: 26px 28px;
+  background: linear-gradient(135deg, rgba(34,197,94,0.14) 0%, rgba(34,197,94,0.02) 100%);
+  border: 1px solid rgba(34,197,94,0.5); border-left: 4px solid #22c55e;
+  border-radius: 10px; position: relative; overflow: hidden;
+}
+.sw-flag::before, .wr-flag::before {
+  content: ''; position: absolute; inset: 0 0 0 auto; width: 220px;
+  background: radial-gradient(circle at 100% 0%, rgba(34,197,94,0.18), transparent 70%);
+  pointer-events: none;
+}
+.flag-row { display: flex; align-items: center; gap: 14px; }
+.flag-ok {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: #22c55e; color: #05110b;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; box-shadow: 0 4px 14px rgba(34,197,94,0.35);
+}
+.flag-ok svg { width: 22px; height: 22px; }
+.flag-title { font-size: 16px; font-weight: 700; color: #ffffff; letter-spacing: -0.1px; }
+.flag-sub { color: #a4d4b5; font-size: 12.5px; margin-top: 2px; font-weight: 500; letter-spacing: 0.2px; text-transform: uppercase; }
+.flag-box {
+  margin-top: 18px; padding: 14px 18px;
+  background: rgba(0,0,0,0.4); border: 1px dashed rgba(34,197,94,0.4); border-radius: 8px;
+  display: flex; align-items: center; gap: 14px;
+}
+.flag-box .label {
+  font-size: 10.5px; color: #86efac; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+  padding: 3px 9px; background: rgba(34,197,94,0.18); border-radius: 99px;
+  border: 1px solid rgba(34,197,94,0.4);
+}
+.flag-box .val {
+  font-family: 'JetBrains Mono', monospace; font-size: 15px; color: #ecfff7;
+  word-break: break-all; font-weight: 600; flex: 1;
+}
+
+.sw-err, .wr-err {
+  margin-top: 20px; padding: 14px 18px;
+  background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.35);
+  border-radius: 8px; color: #fca5a5; font-size: 13px;
+  display: flex; align-items: center; gap: 12px;
+}
+.sw-err::before, .wr-err::before {
+  content: '!'; width: 22px; height: 22px; border-radius: 50%;
+  background: rgba(239,68,68,0.25); color: #fca5a5; font-weight: 800;
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .sw-topbar { padding: 12px 16px; flex-wrap: wrap; }
+  .sw-url-bar { order: 10; flex-basis: 100%; }
+  .sw-info, .sw-server, .sw-taggroup, .sw-models, .sw-models-head { padding-left: 16px; padding-right: 16px; }
+  .sw-info h1 { font-size: 26px; }
+  .sw-recon { padding: 22px; margin-left: 16px; margin-right: 16px; }
+  .sw-op-summary { display: none; }
+  .sw-method { min-width: 66px; font-size: 12px; padding: 6px 0; }
+}
+
+/* ============================================================= */
+/* LAB 4 — WorkBridge Wireshark-style analyzer                    */
+/* ============================================================= */
+.wr-root {
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  background: #0a0f18; color: #d6dce7; min-height: calc(100vh - var(--nav-height));
+  font-size: 13px;
+}
+.wr-header {
+  background: #0d1320; border-bottom: 1px solid #1a2234;
+  padding: 14px 28px; display: flex; align-items: center; gap: 20px;
+  position: sticky; top: var(--nav-height); z-index: 18;
+}
+.wr-cap {
+  display: flex; align-items: center; gap: 12px;
+}
+.wr-cap-mark {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: linear-gradient(135deg, #f59e0b 0%, #c2410c 100%);
+  display: flex; align-items: center; justify-content: center; color: #2a1305;
+  font-weight: 800; font-size: 15px;
+}
+.wr-cap-title { font-size: 15px; font-weight: 700; color: #e7ecf5; letter-spacing: -0.2px; }
+.wr-cap-title .file { color: #a4b0c6; font-weight: 400; font-size: 13px; margin-left: 10px; font-family: 'JetBrains Mono', monospace; }
+.wr-cap-meta { color: #7a8799; font-size: 12px; margin-top: 2px; }
+.wr-cap-meta .live { color: #ef4444; font-weight: 600; }
+
+.wr-tools {
+  margin-left: auto; display: flex; align-items: center; gap: 10px;
+}
+.wr-tbbtn {
+  width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid #1a2234; border-radius: 6px; color: #9aa7c2;
+  background: #111827; transition: all .15s;
+}
+.wr-tbbtn:hover { background: #1a2234; color: #fff; border-color: #2a334a; }
+.wr-tbbtn svg { width: 15px; height: 15px; }
+.wr-tbsep { width: 1px; height: 22px; background: #1a2234; margin: 0 4px; }
+
+.wr-filter-bar {
+  background: #0a0f18; border-bottom: 1px solid #1a2234;
+  padding: 12px 28px; display: flex; align-items: center; gap: 8px;
+}
+.wr-filter-label {
+  font-size: 11px; color: #7a8799; text-transform: uppercase; letter-spacing: 1.2px;
+  font-weight: 600; margin-right: 4px;
+}
+.wr-filter-input {
+  flex: 1; height: 34px; padding: 0 12px; border: 1px solid #1a2234;
+  background: #050914; color: #a7f3d0; border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace; font-size: 12.5px;
+  transition: border-color .15s, box-shadow .15s;
+}
+.wr-filter-input:focus { outline: none; border-color: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,0.12); }
+.wr-filter-btn {
+  height: 34px; padding: 0 14px; border: 1px solid #1a2234; border-radius: 6px;
+  background: #111827; color: #a4b0c6; font-size: 12px; font-weight: 600;
+  display: inline-flex; align-items: center; gap: 6px; transition: all .15s;
+}
+.wr-filter-btn:hover { background: #1a2234; color: #fff; }
+.wr-filter-btn.apply { background: rgba(34,197,94,0.12); border-color: rgba(34,197,94,0.3); color: #86efac; }
+.wr-filter-btn.apply:hover { background: rgba(34,197,94,0.2); }
+
+.wr-content {
+  display: grid; grid-template-rows: 220px 1fr 200px; height: calc(100vh - var(--nav-height) - 110px);
+  min-height: 640px;
+}
+
+/* Packet list */
+.wr-pane-hd {
+  padding: 10px 18px; font-size: 11px; color: #7a8799; text-transform: uppercase;
+  letter-spacing: 1.2px; font-weight: 700;
+  background: #0d1320; border-bottom: 1px solid #1a2234;
+  display: flex; align-items: center; gap: 8px;
+}
+.wr-pane-hd .dot { width: 6px; height: 6px; border-radius: 50%; background: #f59e0b; }
+.wr-list-wrap { background: #0a0f18; overflow: hidden; display: flex; flex-direction: column; }
+.wr-list-head {
+  display: grid; grid-template-columns: 54px 118px 1.1fr 1.1fr 90px 80px 3fr;
+  background: #111827; border-bottom: 1px solid #1a2234;
+  font-weight: 600; font-size: 11.5px; user-select: none; color: #9aa7c2;
+  text-transform: uppercase; letter-spacing: 0.8px;
+}
+.wr-list-head > div { padding: 8px 12px; border-right: 1px solid #1a2234; }
+.wr-list { flex: 1; overflow-y: auto; background: #0a0f18; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; }
+.wr-row {
+  display: grid; grid-template-columns: 54px 118px 1.1fr 1.1fr 90px 80px 3fr;
+  cursor: pointer; border-bottom: 1px solid #141b2a;
+  transition: background .1s;
+}
+.wr-row > div { padding: 8px 12px; border-right: 1px solid #141b2a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wr-row:hover { background: #121a2b; }
+.wr-row .pproto { font-weight: 700; }
+.wr-row.c1 .pproto { color: #60a5fa; }
+.wr-row.c2 .pproto { color: #22c55e; }
+.wr-row.c3 .pproto { color: #f59e0b; }
+.wr-row.selected { background: linear-gradient(90deg, rgba(59,130,246,0.18), rgba(59,130,246,0.08)) !important; }
+.wr-row.selected > div { color: #ffffff; }
+
+/* Details tree */
+.wr-details-wrap { background: #0a0f18; border-top: 1px solid #1a2234; border-bottom: 1px solid #1a2234; overflow: hidden; display: flex; flex-direction: column; }
+.wr-details { flex: 1; overflow: auto; padding: 8px 0; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; }
+.wr-tree { line-height: 19px; }
+.wr-node { padding: 0 8px 0 26px; cursor: default; position: relative; white-space: nowrap; color: #c7d0e0; }
+.wr-node .toggle {
+  position: absolute; left: 10px; top: 0; width: 12px; text-align: center;
+  cursor: pointer; color: #7a8799; font-weight: 700;
+}
+.wr-node.leaf { padding-left: 26px; }
+.wr-node.leaf .toggle { display: none; }
+.wr-node:hover { background: #121a2b; }
+.wr-node.sel { background: rgba(59,130,246,0.18); color: #fff; }
+.wr-children.collapsed { display: none; }
+.wr-children .wr-node { padding-left: 46px; }
+.wr-children .wr-node .toggle { left: 30px; }
+.wr-children .wr-children .wr-node { padding-left: 66px; }
+.wr-children .wr-children .wr-node .toggle { left: 50px; }
+.wr-children .wr-children .wr-children .wr-node { padding-left: 86px; }
+.wr-children .wr-children .wr-children .wr-node .toggle { left: 70px; }
+
+/* Bytes */
+.wr-bytes-wrap { background: #0a0f18; overflow: hidden; display: flex; flex-direction: column; }
+.wr-bytes {
+  flex: 1; overflow: auto; padding: 10px 18px;
+  font-family: 'JetBrains Mono', monospace; font-size: 12.5px;
+  line-height: 17px; white-space: pre; color: #c7d0e0;
+}
+.wr-bytes .off { color: #5a6780; }
+.wr-bytes .hl { background: rgba(245,158,11,0.25); color: #ffffff; }
+
+/* Right drawer: tools + quiz */
+.wr-drawer {
+  position: fixed; right: 0; top: var(--nav-height); bottom: 0; width: 460px;
+  background: #0d1320; border-left: 1px solid #1a2234;
+  display: flex; flex-direction: column; z-index: 50;
+  transform: translateX(460px); transition: transform 0.25s ease;
+  box-shadow: -12px 0 40px rgba(0, 0, 0, 0.4);
+}
+.wr-drawer.open { transform: translateX(0); }
+.wr-drawer-header {
+  padding: 14px 20px; background: #0a0f18; border-bottom: 1px solid #1a2234;
+  display: flex; align-items: center; gap: 12px;
+}
+.wr-drawer-header h3 {
+  font-size: 14px; font-weight: 700; color: #ffffff; letter-spacing: -0.2px;
+}
+.wr-drawer-header .sub { color: #7a8799; font-size: 11.5px; margin-top: 2px; }
+.wr-drawer-close {
+  margin-left: auto; width: 28px; height: 28px; border-radius: 6px;
+  border: 1px solid #1a2234; color: #9aa7c2;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: all .15s;
+}
+.wr-drawer-close:hover { background: #1a2234; color: #fff; }
+
+.wr-drawer-tabs { display: flex; background: #0d1320; border-bottom: 1px solid #1a2234; }
+.wr-drawer-tab {
+  flex: 1; padding: 12px 10px; font-size: 12px; font-weight: 600;
+  color: #7a8799; text-align: center; transition: all .15s;
+  border-right: 1px solid #1a2234;
+  letter-spacing: 0.1px;
+}
+.wr-drawer-tab:last-child { border-right: none; }
+.wr-drawer-tab:hover { color: #ffffff; background: #111827; }
+.wr-drawer-tab.active { color: #f59e0b; background: #050914; border-bottom: 2px solid #f59e0b; margin-bottom: -1px; }
+.wr-drawer-body { flex: 1; overflow: auto; padding: 20px; background: #0a0f18; }
+
+.wr-drawer-toggle {
+  position: fixed; right: 0; top: calc(var(--nav-height) + 140px); z-index: 40;
+  background: linear-gradient(135deg, #f59e0b, #c2410c); color: #2a1305;
+  padding: 14px 8px 14px 12px;
+  border-radius: 10px 0 0 10px; font-size: 11px; font-weight: 800;
+  writing-mode: vertical-rl; text-orientation: mixed; letter-spacing: 2px;
+  box-shadow: -4px 0 14px rgba(245,158,11,0.25);
+  transition: transform .15s;
+}
+.wr-drawer-toggle:hover { transform: translateX(-2px); }
+.wr-drawer-toggle.hidden { display: none; }
+
+.wr-tool h4 {
+  font-size: 12px; font-weight: 700; color: #ffffff;
+  margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+  text-transform: uppercase; letter-spacing: 1px;
+}
+.wr-tool h4::before {
+  content: ''; width: 3px; height: 14px; background: #f59e0b; border-radius: 2px;
+}
+.wr-tool .desc { font-size: 12px; color: #8a96ad; margin-bottom: 12px; line-height: 1.55; }
+.wr-tool textarea {
+  width: 100%; min-height: 90px; padding: 12px 14px;
+  font-family: 'JetBrains Mono', monospace; font-size: 12.5px;
+  border: 1px solid #1a2234; background: #050914;
+  border-radius: 8px; color: #e7ecf5; resize: vertical;
+  transition: border-color .15s, box-shadow .15s;
+}
+.wr-tool textarea::placeholder { color: #4a5670; }
+.wr-tool textarea:focus { outline: none; border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,0.12); }
+.wr-tool button.decode {
+  margin-top: 10px; padding: 10px 20px;
+  background: #f59e0b; color: #2a1305; font-weight: 700; font-size: 12.5px;
+  border-radius: 8px; display: inline-flex; align-items: center; gap: 8px;
+  transition: background .15s;
+  letter-spacing: 0.3px;
+}
+.wr-tool button.decode:hover { background: #fbbf24; }
+.wr-tool button.decode svg { width: 13px; height: 13px; }
+.wr-tool .output-label {
+  margin-top: 16px; font-size: 10.5px; color: #7a8799; text-transform: uppercase;
+  letter-spacing: 1.2px; font-weight: 700; margin-bottom: 6px;
+  display: flex; align-items: center; gap: 6px;
+}
+.wr-tool .output-label::before {
+  content: ''; width: 5px; height: 5px; border-radius: 50%; background: #22c55e;
+}
+.wr-tool .output {
+  padding: 14px 16px; background: #050914; border: 1px solid #1a2234;
+  border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  min-height: 60px; white-space: pre-wrap; word-break: break-all; color: #c7d0e0;
+  line-height: 1.6;
+}
+.wr-tool .output .ok { color: #22c55e; font-weight: 700; }
+.wr-tool .output .bad { color: #ef4444; font-weight: 700; }
+.wr-tool .output .k { color: #60a5fa; }
+.wr-tool .output .v { color: #f59e0b; }
+.wr-tool .output.empty { color: #4a5670; font-style: italic; }
+
+.wr-quiz-hd {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 6px;
+}
+.wr-quiz-hd .icon {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3);
+  display: flex; align-items: center; justify-content: center; color: #fbbf24;
+}
+.wr-quiz-hd .icon svg { width: 16px; height: 16px; }
+.wr-quiz h3 { font-size: 15px; font-weight: 700; color: #ffffff; letter-spacing: -0.2px; }
+.wr-quiz .sub { font-size: 12px; color: #8a96ad; margin-bottom: 22px; margin-top: 6px; line-height: 1.5; }
+.wr-q { margin-bottom: 18px; }
+.wr-q label { display: block; font-size: 12.5px; color: #e7ecf5; margin-bottom: 8px; font-weight: 600; }
+.wr-q label .num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 20px; height: 20px; border-radius: 50%; background: rgba(245,158,11,0.15);
+  color: #fbbf24; font-size: 11px; font-weight: 700; margin-right: 8px;
+  border: 1px solid rgba(245,158,11,0.3);
+}
+.wr-q input {
+  width: 100%; padding: 11px 14px; border: 1px solid #1a2234; background: #050914;
+  font-family: 'JetBrains Mono', monospace; font-size: 12.5px;
+  color: #e7ecf5; border-radius: 8px;
+  transition: border-color .15s, box-shadow .15s;
+}
+.wr-q input::placeholder { color: #4a5670; }
+.wr-q input:hover { border-color: #2a334a; }
+.wr-q input:focus { outline: none; border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,0.12); }
+.wr-q .tip { font-size: 11px; color: #6b7a95; margin-top: 6px; font-style: italic; }
+
+.wr-submit {
+  padding: 12px 22px; background: #f59e0b; color: #2a1305;
+  font-size: 12.5px; font-weight: 700; border-radius: 8px; margin-top: 6px;
+  display: inline-flex; align-items: center; gap: 8px;
+  transition: background .15s;
+  letter-spacing: 0.3px;
+}
+.wr-submit:hover { background: #fbbf24; }
+.wr-submit svg { width: 14px; height: 14px; }
+
+.wr-statusbar {
+  height: 30px; background: #0d1320; border-top: 1px solid #1a2234;
+  padding: 0 20px; font-size: 11.5px; color: #7a8799;
+  display: flex; align-items: center; gap: 20px;
+}
+.wr-statusbar .indicator { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; margin-right: 8px; }
+.wr-statusbar .sep { width: 1px; height: 14px; background: #1a2234; }
+.wr-statusbar .loc { margin-left: auto; font-family: 'JetBrains Mono', monospace; }
+
+@media (max-width: 768px) {
+  .wr-header { padding: 12px 16px; flex-wrap: wrap; }
+  .wr-tools { margin-left: 0; }
+  .wr-filter-bar { padding: 10px 16px; flex-wrap: wrap; }
+  .wr-filter-input { flex-basis: 100%; }
+  .wr-content { grid-template-rows: 180px 1fr 180px; min-height: 560px; }
+  .wr-list-head, .wr-row { grid-template-columns: 40px 90px 1fr 1fr 70px 60px 2fr; font-size: 11px; }
+  .wr-drawer { width: 100%; }
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+(function(){
+  const d = (s) => atob(s);
+  const K = {
+    q3: {
+      a: ['L2FwaS92MS9hZG1pbi9zeXN0ZW0vZGlhZ25vc3RpY3M=', 'aW5jbHVkZV9yYXdfZGF0YQ==', 'cHJvY2Vzc29yX2tleQ=='],
+      f: 'RkxBRy1DUC1SM0MwTi00VFQ0Q0stU1VSRjRDRQ=='
+    },
+    q4: {
+      a: ['YWRtaW4=', 'd29ya2JyaWRnZV9hZGluOlN1cGVyUGFzc0AxMjM=', 'd2ItbGl2ZS1zay05ZjJhN2MzZA=='],
+      f: 'RkxBRy1XQi00VVRILUgzNEQzUi0zWFAwUzNE'
+    }
+  };
+  const norm = (s) => (s || '').trim().toLowerCase();
+  const normPath = (s) => {
+    let t = (s || '').trim().toLowerCase();
+    t = t.replace(/^https?:\/\/[^\/]+/, '');
+    if (t.length > 1 && t.endsWith('/')) t = t.slice(0, -1);
+    if (t && !t.startsWith('/')) t = '/' + t;
+    return t;
+  };
+  const escapeHtml = (s) => String(s).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  const spec = {
+    title: 'ClearPay Merchant API',
+    version: '1.4.2',
+    oas: 'OAS 3.0',
+    desc: 'Official merchant-facing REST API for the ClearPay payments platform. Integrate payments, manage merchant accounts, look up transactions, and query platform services. All traffic served over TLS 1.2+.',
+    contactEmail: 'apisupport@clearpay.io',
+    license: 'Apache 2.0',
+    specUrl: 'https://api.clearpay.io/openapi.json',
+    servers: [
+      'https://api.clearpay.io — Production',
+      'https://api.sandbox.clearpay.io — Sandbox'
+    ]
+  };
+  const tags = [
+    { name: 'public', desc: 'Endpoints callable with a public API key. Rate-limited.' },
+    { name: 'users', desc: 'Authenticated user profile & account management.' },
+    { name: 'payments', desc: 'Transaction lookup and funds transfer operations.' },
+    { name: 'admin', desc: 'Internal platform diagnostics and operator tooling.' }
+  ];
+  const endpoints = [
+    {
+      id: 'ep1', tag: 'public', method: 'GET',
+      path: '/api/v1/public/exchange-rates',
+      summary: 'Return current FX rates',
+      description: 'Returns the published foreign exchange rates used by ClearPay for cross-border transactions. Rates are refreshed every 60 seconds.',
+      auth: { type: 'ApiKeyAuth', header: 'X-API-Key', required: true },
+      params: [
+        { name: 'base', in: 'query', type: 'string', required: true, example: 'USD', desc: 'ISO 4217 base currency code.' },
+        { name: 'target', in: 'query', type: 'string', required: false, example: 'EUR', desc: 'Target currency code. Omit to return all supported pairs.' }
+      ],
+      responses: [
+        { code: '200', desc: 'OK', schema: 'ExchangeRate' },
+        { code: '429', desc: 'Too Many Requests', schema: 'Error' }
+      ],
+      schema: { name: 'ExchangeRate', fields: [
+        { k: 'base', t: 'string', d: 'Base currency code.' },
+        { k: 'target', t: 'string', d: 'Target currency code.' },
+        { k: 'rate', t: 'number', d: 'Current FX rate (6 decimal places).' },
+        { k: 'published_at', t: 'string($date-time)', d: 'ISO-8601 timestamp of rate publication.' }
+      ]}
+    },
+    {
+      id: 'ep2', tag: 'public', method: 'POST',
+      path: '/api/v1/public/contact',
+      summary: 'Submit a support contact request',
+      description: 'Creates a new support ticket from a public contact form submission. Messages are routed to the ClearPay customer success team.',
+      auth: { type: 'ApiKeyAuth', header: 'X-API-Key', required: true },
+      params: [
+        { name: 'full_name', in: 'body', type: 'string', required: true, desc: 'Full name of the sender.' },
+        { name: 'email', in: 'body', type: 'string($email)', required: true, desc: 'Sender email address for support reply.' },
+        { name: 'message', in: 'body', type: 'string', required: true, desc: 'Message body, up to 2000 characters.' }
+      ],
+      responses: [
+        { code: '201', desc: 'Created', schema: 'ContactReceipt' },
+        { code: '400', desc: 'Bad Request', schema: 'Error' }
+      ],
+      schema: { name: 'ContactReceipt', fields: [
+        { k: 'ticket_id', t: 'string', d: 'Support ticket identifier (format: TCK-XXXXXXXX).' },
+        { k: 'status', t: 'string', d: 'Ticket status. One of: queued, acknowledged.' }
+      ]}
+    },
+    {
+      id: 'ep3', tag: 'users', method: 'GET',
+      path: '/api/v1/users/me',
+      summary: 'Get the authenticated user profile',
+      description: 'Returns the profile record for the OAuth2-authenticated principal extracted from the bearer token.',
+      auth: { type: 'BearerAuth', header: 'Authorization', required: true },
+      params: [],
+      responses: [
+        { code: '200', desc: 'OK', schema: 'UserProfile' },
+        { code: '401', desc: 'Unauthorized', schema: 'Error' }
+      ],
+      schema: { name: 'UserProfile', fields: [
+        { k: 'user_id', t: 'string', d: 'Opaque user identifier.' },
+        { k: 'email', t: 'string($email)', d: 'Primary verified email.' },
+        { k: 'full_name', t: 'string', d: 'User display name.' },
+        { k: 'account_status', t: 'string', d: 'One of: active, suspended, closed.' }
+      ]}
+    },
+    {
+      id: 'ep4', tag: 'payments', method: 'GET',
+      path: '/api/v1/payments/{transaction_id}',
+      summary: 'Retrieve a payment transaction',
+      description: 'Look up the record for a single payment transaction using its identifier. Returns customer-facing fields by default.',
+      auth: { type: 'BearerAuth', header: 'Authorization', required: true },
+      params: [
+        { name: 'transaction_id', in: 'path', type: 'string', required: true, example: 'txn_9a7c2f', desc: 'Unique transaction identifier returned when the payment was created.' },
+        { name: 'include_raw_data', in: 'query', type: 'boolean', required: false, example: 'false', desc: 'Returns full transaction object including internal processing notes. For internal audit use only.' }
+      ],
+      responses: [
+        { code: '200', desc: 'OK', schema: 'Transaction' },
+        { code: '404', desc: 'Not Found', schema: 'Error' }
+      ],
+      schema: { name: 'Transaction', fields: [
+        { k: 'transaction_id', t: 'string', d: 'Transaction identifier.' },
+        { k: 'amount', t: 'integer', d: 'Amount in minor currency units (e.g. cents).' },
+        { k: 'currency', t: 'string', d: 'ISO 4217 currency code.' },
+        { k: 'status', t: 'string', d: 'One of: pending, settled, refunded, failed.' },
+        { k: 'created_at', t: 'string($date-time)', d: 'ISO-8601 timestamp of creation.' }
+      ]}
+    },
+    {
+      id: 'ep5', tag: 'payments', method: 'POST',
+      path: '/api/v1/payments/transfer',
+      summary: 'Initiate a funds transfer',
+      description: 'Creates an internal funds transfer between two ClearPay accounts. Idempotent via the Idempotency-Key header.',
+      auth: { type: 'BearerAuth', header: 'Authorization', required: true },
+      params: [
+        { name: 'from_account', in: 'body', type: 'string', required: true, desc: 'Source ClearPay account identifier.' },
+        { name: 'to_account', in: 'body', type: 'string', required: true, desc: 'Destination ClearPay account identifier.' },
+        { name: 'amount', in: 'body', type: 'integer', required: true, desc: 'Transfer amount in minor currency units.' },
+        { name: 'currency', in: 'body', type: 'string', required: true, desc: 'ISO 4217 currency code.' }
+      ],
+      responses: [
+        { code: '202', desc: 'Accepted', schema: 'TransferReceipt' },
+        { code: '400', desc: 'Bad Request', schema: 'Error' }
+      ],
+      schema: { name: 'TransferReceipt', fields: [
+        { k: 'transfer_id', t: 'string', d: 'Unique transfer identifier.' },
+        { k: 'status', t: 'string', d: 'One of: pending, settled, failed.' },
+        { k: 'processor_key', t: 'string', d: 'Internal payment processor identifier' },
+        { k: 'initiated_at', t: 'string($date-time)', d: 'ISO-8601 timestamp of initiation.' }
+      ]}
+    },
+    {
+      id: 'ep6', tag: 'admin', method: 'GET',
+      path: '/api/v1/admin/system/diagnostics',
+      summary: 'Return internal system diagnostics',
+      description: 'Returns internal platform diagnostics including version string, uptime counter, and deployment environment. Used by on-call operators during incident triage.',
+      auth: { type: null, header: null, required: false },
+      params: [],
+      responses: [
+        { code: '200', desc: 'OK', schema: 'SystemDiagnostics' }
+      ],
+      schema: { name: 'SystemDiagnostics', fields: [
+        { k: 'system_version', t: 'string', d: 'Running platform release tag.' },
+        { k: 'uptime_seconds', t: 'integer', d: 'Seconds since last service restart.' },
+        { k: 'environment', t: 'string', d: 'Deployment environment identifier.' }
+      ]}
+    }
+  ];
+
+  const packets = [
+    {
+      no: 1, time: '0.000000',
+      src: '10.27.4.112', dst: '54.230.88.17',
+      sport: 51284, dport: 443, seq: 1, ack: 1,
+      proto: 'HTTP',
+      info: 'GET /api/v1/employees/me HTTP/1.1',
+      cls: 'c2',
+      http: {
+        request: 'GET /api/v1/employees/me HTTP/1.1',
+        method: 'GET', path: '/api/v1/employees/me',
+        headers: [
+          ['Host', 'api.workbridge.io'],
+          ['User-Agent', 'WorkBridgeApp/2.4.1 (iPhone; iOS 17.5; Scale/3.00)'],
+          ['Accept', 'application/json'],
+          ['Accept-Language', 'en-US,en;q=0.9'],
+          ['Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyXzQ4MiIsInJvbGUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5Ad29ya2JyaWRnZS5pbyIsImV4cCI6OTk5OTk5OTk5OX0.signature'],
+          ['Connection', 'keep-alive']
+        ]
+      }
+    },
+    {
+      no: 2, time: '2.134871',
+      src: '10.27.4.112', dst: '54.230.88.17',
+      sport: 51296, dport: 443, seq: 1, ack: 1,
+      proto: 'HTTP',
+      info: 'POST /api/v1/auth/session HTTP/1.1  (application/x-www-form-urlencoded)',
+      cls: 'c3',
+      http: {
+        request: 'POST /api/v1/auth/session HTTP/1.1',
+        method: 'POST', path: '/api/v1/auth/session',
+        headers: [
+          ['Host', 'api.workbridge.io'],
+          ['User-Agent', 'curl/8.4.0'],
+          ['Accept', '*/*'],
+          ['Content-Type', 'application/x-www-form-urlencoded'],
+          ['Content-Length', '0'],
+          ['Authorization', 'Basic d29ya2JyaWRnZV9hZGluOlN1cGVyUGFzc0AxMjM='],
+          ['Connection', 'close']
+        ]
+      }
+    },
+    {
+      no: 3, time: '4.887420',
+      src: '10.27.4.112', dst: '54.230.88.17',
+      sport: 51302, dport: 443, seq: 1, ack: 1,
+      proto: 'HTTP',
+      info: 'GET /api/v1/reports?api_key=wb-live-sk-9f2a7c3d&format=csv HTTP/1.1',
+      cls: 'c2',
+      http: {
+        request: 'GET /api/v1/reports?api_key=wb-live-sk-9f2a7c3d&format=csv HTTP/1.1',
+        method: 'GET', path: '/api/v1/reports?api_key=wb-live-sk-9f2a7c3d&format=csv',
+        headers: [
+          ['Host', 'api.workbridge.io'],
+          ['User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15'],
+          ['Accept', 'text/csv,application/json;q=0.9,*/*;q=0.5'],
+          ['Accept-Language', 'en-US,en;q=0.9'],
+          ['Referer', 'https://app.workbridge.io/dashboard/reports'],
+          ['Connection', 'keep-alive']
+        ]
+      }
+    }
+  ];
+
+  const app = document.getElementById('app');
+
+  function gnav(crumbHere) {
+    const crumb = crumbHere
+      ? `<a class="gnav-back" href="#home" title="Back to labs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>Labs</a>
+         <div class="gnav-crumb"><span class="slash">/</span><span>API Reconnaissance</span><span class="slash">/</span><span class="here">${escapeHtml(crumbHere)}</span></div>`
+      : `<div class="gnav-crumb"><span class="slash">/</span><span class="here">API Reconnaissance</span></div>`;
+    return `
+      <nav class="gnav">
+        <div class="gnav-brand">
+          <div class="gnav-mark">S</div>
+          <div>
+            <span class="gnav-name">Scaler Lab</span>
+            <span class="gnav-sep"></span>
+            <span class="gnav-product">Cybersecurity</span>
+          </div>
+        </div>
+        ${crumb}
+        <div class="gnav-right">
+          <div class="gnav-status">
+            <span class="gnav-dot"></span>
+            <span class="label">Lab Environment Active</span>
+          </div>
+          <div class="gnav-user" title="Analyst">SA</div>
+        </div>
+      </nav>
+    `;
+  }
+
+  function route() {
+    const h = (location.hash || '#home').replace(/^#/, '').split('?')[0];
+    if (h === 'q3') return renderLab3();
+    if (h === 'q4') return renderLab4();
+    renderHome();
+  }
+  window.addEventListener('hashchange', () => { window.scrollTo(0, 0); route(); });
+
+  // ================ HOME ================
+  function renderHome() {
+    app.innerHTML = `
+      ${gnav()}
+      <main class="home">
+        <div class="home-inner">
+          <div class="home-hero">
+            <div class="home-tag"><span class="pip"></span>API Reconnaissance</div>
+            <h1>Recon, <span class="grad">refined.</span></h1>
+            <p class="lede">Two labs. Real tools. Find what the scanners miss.</p>
+          </div>
+
+          <div class="grid">
+            <div class="lab-card" data-nav="q3">
+              <div class="lab-card-top">
+                <div class="lab-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="9" y1="13" x2="15" y2="13"/>
+                    <line x1="9" y1="17" x2="15" y2="17"/>
+                  </svg>
+                </div>
+                <div class="lab-arrow">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M8 7h9v9"/></svg>
+                </div>
+              </div>
+              <h2>API Spec Attack Surface</h2>
+              <p>Audit a live API doc portal. Surface what shouldn&rsquo;t be public.</p>
+              <div class="foot">ClearPay Developer Portal</div>
+            </div>
+
+            <div class="lab-card c4" data-nav="q4">
+              <div class="lab-card-top">
+                <div class="lab-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="12" rx="2"/>
+                    <line x1="7" y1="20" x2="17" y2="20"/>
+                    <line x1="12" y1="16" x2="12" y2="20"/>
+                    <circle cx="8" cy="10" r="1.5"/>
+                    <line x1="12" y1="10" x2="18" y2="10"/>
+                  </svg>
+                </div>
+                <div class="lab-arrow">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M8 7h9v9"/></svg>
+                </div>
+              </div>
+              <h2>Authentication Headers</h2>
+              <p>Decode intercepted traffic. Extract credentials from the wire.</p>
+              <div class="foot">Wireshark &middot; wb-capture.pcapng</div>
+            </div>
+          </div>
+        </div>
+      </main>
+    `;
+    app.querySelectorAll('.lab-card').forEach(c => c.addEventListener('click', () => { location.hash = '#' + c.dataset.nav; }));
+  }
+
+  // ================ LAB 3 ================
+  const sampleMap = {
+    base: '"USD"', target: '"EUR"', rate: '0.92341',
+    published_at: '"2026-04-17T14:22:06Z"',
+    ticket_id: '"TCK-47A3B219"', status: '"queued"',
+    user_id: '"usr_48a2"', email: '"jane.doe@example.com"',
+    full_name: '"Jane Doe"', account_status: '"active"',
+    transaction_id: '"txn_9a7c2f"', amount: '24500',
+    currency: '"USD"', created_at: '"2026-04-15T09:13:47Z"',
+    transfer_id: '"xfr_bc7e12"', processor_key: '"pk_prd_3f8a9b"',
+    initiated_at: '"2026-04-17T14:22:18Z"',
+    system_version: '"clearpay-core/2026.04.2"',
+    uptime_seconds: '184239',
+    environment: '"production-eu-west"',
+    from_account: '"acct_1a2b3c"', to_account: '"acct_4d5e6f"',
+    message: '"Requesting help with webhook retry policy"'
+  };
+  function sampleVal(name, type) {
+    if (sampleMap[name]) return sampleMap[name];
+    if (/integer|number|boolean/.test(type)) return '0';
+    return '"..."';
+  }
+  function unquote(s) { return s.replace(/^"|"$/g, ''); }
+  function colVal(v) {
+    return v.startsWith('"')
+      ? `<span class="s">${escapeHtml(v)}</span>`
+      : `<span class="n">${escapeHtml(v)}</span>`;
+  }
+  function shortPath(p) { return p.replace(/^\/api\/v1/, ''); }
+  function buildSampleUrl(e) {
+    let url = `https://api.clearpay.io${e.path}`;
+    e.params.filter(p => p.in === 'path').forEach(p => {
+      url = url.replace(`{${p.name}}`, unquote(sampleVal(p.name, p.type)));
+    });
+    const qps = e.params.filter(p => p.in === 'query');
+    if (qps.length) {
+      url += '?' + qps.map(p => `${p.name}=${p.example || unquote(sampleVal(p.name, p.type))}`).join('&');
+    }
+    return url;
+  }
+
+  function buildCurlExample(e) {
+    const url = buildSampleUrl(e);
+    const headers = [];
+    if (e.auth.required && e.auth.type === 'BearerAuth') headers.push("Authorization: Bearer <TOKEN>");
+    else if (e.auth.required && e.auth.type === 'ApiKeyAuth') headers.push("X-API-Key: <API_KEY>");
+    headers.push("Accept: application/json");
+    const bps = e.params.filter(p => p.in === 'body');
+    if (bps.length) headers.push("Content-Type: application/json");
+
+    let out = `<span class="k">curl</span> -X ${e.method} \\\n  <span class="s">'${escapeHtml(url)}'</span>`;
+    headers.forEach(h => {
+      out += ` \\\n  -H <span class="s">'${escapeHtml(h)}'</span>`;
+    });
+    if (bps.length) {
+      const body = bps.map((p, i) => {
+        const comma = i < bps.length - 1 ? ',' : '';
+        const val = sampleVal(p.name, p.type);
+        return `    <span class="k">"${escapeHtml(p.name)}"</span>: ${colVal(val)}${comma}`;
+      }).join('\n');
+      out += ` \\\n  -d <span class="s">'{</span>\n${body}\n  <span class="s">}'</span>`;
+    }
+    return out;
+  }
+
+  function buildJsExample(e) {
+    const url = buildSampleUrl(e);
+    const bps = e.params.filter(p => p.in === 'body');
+    const headers = [];
+    if (e.auth.required && e.auth.type === 'BearerAuth') headers.push(['Authorization', 'Bearer <TOKEN>']);
+    else if (e.auth.required && e.auth.type === 'ApiKeyAuth') headers.push(['X-API-Key', '<API_KEY>']);
+    headers.push(['Accept', 'application/json']);
+    if (bps.length) headers.push(['Content-Type', 'application/json']);
+
+    const lines = [];
+    lines.push(`<span class="k">const</span> res = <span class="k">await</span> <span class="p">fetch</span>(<span class="s">'${escapeHtml(url)}'</span>, {`);
+    lines.push(`  method: <span class="s">'${e.method}'</span>,`);
+    lines.push(`  headers: {`);
+    headers.forEach((h, i) => {
+      const comma = i < headers.length - 1 ? ',' : '';
+      lines.push(`    <span class="s">'${escapeHtml(h[0])}'</span>: <span class="s">'${escapeHtml(h[1])}'</span>${comma}`);
+    });
+    lines.push(`  }${bps.length ? ',' : ''}`);
+    if (bps.length) {
+      lines.push(`  body: <span class="p">JSON</span>.<span class="p">stringify</span>({`);
+      bps.forEach((p, i) => {
+        const comma = i < bps.length - 1 ? ',' : '';
+        lines.push(`    <span class="k">${escapeHtml(p.name)}</span>: ${colVal(sampleVal(p.name, p.type))}${comma}`);
+      });
+      lines.push(`  })`);
+    }
+    lines.push(`});`);
+    lines.push(``);
+    lines.push(`<span class="k">const</span> data = <span class="k">await</span> res.<span class="p">json</span>();`);
+    return lines.join('\n');
+  }
+
+  function buildPyExample(e) {
+    const url = buildSampleUrl(e).split('?')[0];
+    const qps = e.params.filter(p => p.in === 'query');
+    const bps = e.params.filter(p => p.in === 'body');
+    const lines = [];
+    lines.push(`<span class="k">import</span> requests`);
+    lines.push(``);
+    lines.push(`headers = {`);
+    if (e.auth.required && e.auth.type === 'BearerAuth') {
+      lines.push(`    <span class="s">'Authorization'</span>: <span class="s">'Bearer &lt;TOKEN&gt;'</span>,`);
+    } else if (e.auth.required && e.auth.type === 'ApiKeyAuth') {
+      lines.push(`    <span class="s">'X-API-Key'</span>: <span class="s">'&lt;API_KEY&gt;'</span>,`);
+    }
+    lines.push(`    <span class="s">'Accept'</span>: <span class="s">'application/json'</span>,`);
+    lines.push(`}`);
+    lines.push(``);
+    const method = e.method.toLowerCase();
+    lines.push(`response = requests.<span class="p">${method}</span>(`);
+    lines.push(`    <span class="s">'${escapeHtml(url)}'</span>,`);
+    lines.push(`    headers=headers,`);
+    if (qps.length) {
+      const qd = qps.map(p => {
+        const v = p.example ? `'${p.example}'` : sampleVal(p.name, p.type);
+        return `        <span class="s">'${escapeHtml(p.name)}'</span>: <span class="s">${escapeHtml(v.startsWith('\'')?v:`'${unquote(v)}'`)}</span>`;
+      }).join(',\n');
+      lines.push(`    params={\n${qd}\n    },`);
+    }
+    if (bps.length) {
+      const bd = bps.map(p => {
+        return `        <span class="s">'${escapeHtml(p.name)}'</span>: ${colVal(sampleVal(p.name, p.type))}`;
+      }).join(',\n');
+      lines.push(`    json={\n${bd}\n    },`);
+    }
+    lines.push(`)`);
+    lines.push(`data = response.<span class="p">json</span>()`);
+    return lines.join('\n');
+  }
+
+  function buildSampleResponse(e) {
+    const lines = e.schema.fields.map((f, i) => {
+      const comma = i < e.schema.fields.length - 1 ? ',' : '';
+      return `  <span class="k">"${escapeHtml(f.k)}"</span>: ${colVal(sampleVal(f.k, f.t))}${comma}`;
+    }).join('\n');
+    return `{\n${lines}\n}`;
+  }
+
+  function flagBlock(flag) {
+    return `
+      <div class="sw-flag">
+        <div class="flag-row">
+          <div class="flag-ok">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+          </div>
+          <div>
+            <div class="flag-sub">Challenge complete</div>
+            <div class="flag-title">Correct. Your recon is verified.</div>
+          </div>
+        </div>
+        <div class="flag-box">
+          <span class="label">Flag</span>
+          <span class="val">${escapeHtml(flag)}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderLab3() {
+    // Sidebar
+    const sidebarHtml = `
+      <div class="dp-side-section">
+        <div class="dp-side-label">Get Started</div>
+        <a class="dp-side-item active" data-scroll="overview" href="#overview"><span class="path">Introduction</span></a>
+        <a class="dp-side-item" data-scroll="authentication" href="#authentication"><span class="path">Authentication</span></a>
+      </div>
+      ${tags.map(t => {
+        const eps = endpoints.filter(e => e.tag === t.name);
+        return `
+          <div class="dp-side-section">
+            <div class="dp-side-label">${escapeHtml(t.name)}<span class="count">${eps.length}</span></div>
+            ${eps.map(e => `
+              <a class="dp-side-item" data-scroll="ep-${e.id}" href="#ep-${e.id}">
+                <span class="dp-side-method ${e.method.toLowerCase()}">${e.method}</span>
+                <span class="path">${escapeHtml(shortPath(e.path))}</span>
+              </a>
+            `).join('')}
+          </div>
+        `;
+      }).join('')}
+      <div class="dp-side-section">
+        <div class="dp-side-label">Security</div>
+        <a class="dp-side-item" data-scroll="recon" href="#recon"><span class="path">Recon Findings</span></a>
+      </div>
+    `;
+
+    // Sections per tag
+    const sectionsHtml = tags.map(t => {
+      const eps = endpoints.filter(e => e.tag === t.name);
+      return `
+        <section class="dp-section" id="tag-${t.name}">
+          <div class="dp-section-hd">
+            <h2>${escapeHtml(t.name)} <span class="dp-tag-pill">${eps.length} endpoints</span></h2>
+            <div class="desc">${escapeHtml(t.desc)}</div>
+          </div>
+          ${eps.map(e => renderOp(e)).join('')}
+        </section>
+      `;
+    }).join('');
+
+    app.innerHTML = `
+      ${gnav('ClearPay Developer Portal')}
+      <div class="dp-root">
+        <div class="dp-subnav">
+          <div class="dp-brand">
+            <div class="dp-brand-mark">C</div>
+            <span>ClearPay</span>
+            <span class="slash">/</span>
+            <span class="section">Merchant API</span>
+          </div>
+          <span class="dp-version">v${escapeHtml(spec.version)} &middot; OAS 3.0</span>
+          <div class="dp-search">
+            <svg class="icn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input placeholder="Search endpoints, schemas, parameters&hellip;">
+            <span class="kbd">&#8984; K</span>
+          </div>
+        </div>
+
+        <div class="dp-layout">
+          <aside class="dp-sidebar">${sidebarHtml}</aside>
+          <main class="dp-main">
+            <section class="dp-overview" id="overview">
+              <div class="dp-kicker">API Reference</div>
+              <h1 class="dp-title">${escapeHtml(spec.title)}</h1>
+              <p class="dp-lede">${escapeHtml(spec.desc)}</p>
+              <div class="dp-chip-row">
+                <span class="dp-chip">
+                  <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  OpenAPI 3.0
+                </span>
+                <span class="dp-chip">OAuth2 &middot; API Key</span>
+                <span class="dp-chip">TLS 1.2+</span>
+                <span class="dp-chip">JSON &middot; UTF-8</span>
+              </div>
+              <div class="dp-server">
+                <span class="lbl">Production</span>
+                <code>https://api.clearpay.io</code>
+                <button class="copy">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                  Copy
+                </button>
+              </div>
+            </section>
+
+            <section class="dp-section" id="authentication">
+              <div class="dp-section-hd">
+                <h2>Authentication</h2>
+                <div class="desc">All requests require either an OAuth2 Bearer token (user-scoped) or a public API key (rate-limited).</div>
+              </div>
+              <div class="dp-op" style="grid-template-columns:1fr;gap:0;margin-bottom:0;">
+                <div class="dp-op-left">
+                  <div class="dp-op-desc">
+                    Authenticate privileged calls with <code style="font-family:'JetBrains Mono',monospace;color:#6ee7b7;background:#0a0f1f;padding:2px 8px;border-radius:4px;border:1px solid #1a2238;">Authorization: Bearer &lt;TOKEN&gt;</code> — tokens are issued by the <code style="font-family:'JetBrains Mono',monospace;color:#6ee7b7;background:#0a0f1f;padding:2px 8px;border-radius:4px;border:1px solid #1a2238;">/oauth2/token</code> flow. For public endpoints, pass your API key via the <code style="font-family:'JetBrains Mono',monospace;color:#6ee7b7;background:#0a0f1f;padding:2px 8px;border-radius:4px;border:1px solid #1a2238;">X-API-Key</code> header.
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            ${sectionsHtml}
+
+            <section class="dp-recon" id="recon">
+              <div class="dp-recon-hd">
+                <div class="ico">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </div>
+                <div>
+                  <div class="sub">Security Audit</div>
+                  <h2>Recon Findings</h2>
+                </div>
+              </div>
+              <div class="dp-recon-hint">You&rsquo;ve reviewed the spec above. Submit your three findings below. All three must be correct to reveal your flag &mdash; one incorrect entry clears the form.</div>
+
+              <div class="dp-recon-form">
+                <div class="dp-rq full">
+                  <label><span class="num">1</span>Path of the endpoint that requires no authentication</label>
+                  <input id="r3q1" placeholder="/api/v1/..." autocomplete="off" spellcheck="false">
+                </div>
+                <div class="dp-rq">
+                  <label><span class="num">2</span>Optional parameter that exposes internal data</label>
+                  <input id="r3q2" placeholder="parameter_name" autocomplete="off" spellcheck="false">
+                </div>
+                <div class="dp-rq">
+                  <label><span class="num">3</span>Response field exposing an internal system identifier</label>
+                  <input id="r3q3" placeholder="field_name" autocomplete="off" spellcheck="false">
+                </div>
+                <div class="dp-recon-actions">
+                  <button class="dp-run" id="r3submit">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+                    Submit findings
+                  </button>
+                  <span class="dp-recon-note">3 findings required &middot; wrong answers reset the form</span>
+                </div>
+                <div class="dp-result-slot" id="r3result"></div>
+              </div>
+            </section>
+          </main>
+        </div>
+      </div>
+    `;
+
+    // Sidebar smooth scroll + active state
+    const sideItems = app.querySelectorAll('.dp-side-item[data-scroll]');
+    sideItems.forEach(el => {
+      el.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        const target = document.getElementById(el.dataset.scroll);
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          sideItems.forEach(x => x.classList.remove('active'));
+          el.classList.add('active');
+        }
+      });
+    });
+
+    // Code tabs
+    app.querySelectorAll('.dp-code-block').forEach(block => {
+      block.querySelectorAll('.dp-code-tab[data-lang]').forEach(tab => {
+        tab.addEventListener('click', () => {
+          const lang = tab.dataset.lang;
+          block.querySelectorAll('.dp-code-tab').forEach(x => x.classList.toggle('active', x.dataset.lang === lang));
+          block.querySelectorAll('.dp-code-pane').forEach(p => {
+            p.style.display = p.dataset.lang === lang ? 'block' : 'none';
+          });
+        });
+      });
+    });
+
+    // Copy buttons (visual only; navigator.clipboard where allowed)
+    app.querySelectorAll('.dp-code-copy, .dp-server .copy').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const block = btn.closest('.dp-code-block, .dp-server');
+        let text = '';
+        if (block.classList.contains('dp-server')) {
+          text = block.querySelector('code').textContent;
+        } else {
+          const pane = block.querySelector('.dp-code-pane[style*="block"] .dp-code-body');
+          if (pane) text = pane.innerText;
+        }
+        const original = btn.innerHTML;
+        try {
+          if (navigator.clipboard && text) navigator.clipboard.writeText(text);
+        } catch (e) {}
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Copied';
+        setTimeout(() => { btn.innerHTML = original; }, 1400);
+      });
+    });
+
+    document.getElementById('r3submit').addEventListener('click', () => {
+      const v1 = document.getElementById('r3q1').value;
+      const v2 = document.getElementById('r3q2').value;
+      const v3 = document.getElementById('r3q3').value;
+      const r = document.getElementById('r3result');
+      if (!v1.trim() || !v2.trim() || !v3.trim()) {
+        r.innerHTML = `<div class="sw-err">All three fields are required.</div>`;
+        return;
+      }
+      const ok1 = normPath(v1) === normPath(d(K.q3.a[0]));
+      const ok2 = norm(v2) === norm(d(K.q3.a[1]));
+      const ok3 = norm(v3) === norm(d(K.q3.a[2]));
+      if (ok1 && ok2 && ok3) {
+        r.innerHTML = flagBlock(d(K.q3.f));
+      } else {
+        document.getElementById('r3q1').value = '';
+        document.getElementById('r3q2').value = '';
+        document.getElementById('r3q3').value = '';
+        r.innerHTML = `<div class="sw-err">One or more findings are incorrect. All entries cleared &mdash; re-audit the spec and try again.</div>`;
+      }
+    });
+  }
+
+  function renderOp(e) {
+    const m = e.method.toLowerCase();
+    const colPath = escapeHtml(e.path).replace(/\{([^}]+)\}/g, '<span class="param">{$1}</span>');
+
+    const authBadge = e.auth.required
+      ? `<span class="dp-op-auth"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 8h-1V6A5 5 0 007 6v2H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V10a2 2 0 00-2-2zM9 6a3 3 0 016 0v2H9z"/></svg>${escapeHtml(e.auth.type)}</span>`
+      : `<span class="dp-op-auth none"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 8h-1V6A5 5 0 007 6h2a3 3 0 016 0v2H4a2 2 0 00-2 2v10a2 2 0 002 2h14a2 2 0 002-2V10a2 2 0 00-2-2z"/></svg>No auth required</span>`;
+
+    const pathParams = e.params.filter(p => p.in === 'path');
+    const queryParams = e.params.filter(p => p.in === 'query');
+    const bodyParams = e.params.filter(p => p.in === 'body');
+
+    function renderParamList(params) {
+      return params.map(p => `
+        <div class="dp-param">
+          <div class="dp-param-row">
+            <span class="dp-param-name">${escapeHtml(p.name)}</span>
+            <span class="dp-param-type">${escapeHtml(p.type)}</span>
+            <span class="dp-param-in">${escapeHtml(p.in)}</span>
+            ${p.required ? '<span class="dp-param-req">Required</span>' : '<span class="dp-param-opt">Optional</span>'}
+          </div>
+          <div class="dp-param-desc">${escapeHtml(p.desc)}</div>
+          ${p.example ? `<div class="dp-param-ex"><span class="lbl">Example</span><span class="val">${escapeHtml(p.example)}</span></div>` : ''}
+        </div>
+      `).join('');
+    }
+
+    const paramBlocks = [];
+    if (pathParams.length) paramBlocks.push(`<div class="dp-h">Path parameters</div>${renderParamList(pathParams)}`);
+    if (queryParams.length) paramBlocks.push(`<div class="dp-h">Query parameters</div>${renderParamList(queryParams)}`);
+    if (bodyParams.length) paramBlocks.push(`<div class="dp-h">Request body</div>${renderParamList(bodyParams)}`);
+    if (!paramBlocks.length) paramBlocks.push(`<div class="dp-h">Parameters</div><div style="color:#7e8ca5;font-size:13.5px;padding:6px 0 2px;">This endpoint takes no parameters.</div>`);
+
+    const respListHtml = e.responses.map(r => `
+      <div class="dp-resp-item">
+        <span class="dp-resp-badge ${parseInt(r.code, 10) >= 400 ? 'err' : 'ok'}"><span class="dot"></span>${escapeHtml(r.code)}</span>
+        <span style="flex:1;">${escapeHtml(r.desc)}</span>
+        <code>${escapeHtml(r.schema)}</code>
+      </div>
+    `).join('');
+
+    const schemaRows = e.schema.fields.map(f => `
+      <div class="row">
+        <span class="n">${escapeHtml(f.k)}</span>
+        <span class="t">${escapeHtml(f.t)}</span>
+        <span class="d">${escapeHtml(f.d)}</span>
+      </div>
+    `).join('');
+
+    const curl = buildCurlExample(e);
+    const js = buildJsExample(e);
+    const py = buildPyExample(e);
+    const sample = buildSampleResponse(e);
+    const successCode = (e.responses.find(r => parseInt(r.code, 10) < 300) || e.responses[0]).code;
+
+    return `
+      <div class="dp-op" id="ep-${e.id}">
+        <div class="dp-op-hd">
+          <span class="dp-method ${m}">${e.method}</span>
+          <span class="dp-op-path">${colPath}</span>
+          ${authBadge}
+        </div>
+        <div class="dp-op-left">
+          <div class="dp-op-summary">${escapeHtml(e.summary)}</div>
+          <div class="dp-op-desc">${escapeHtml(e.description)}</div>
+          ${paramBlocks.join('')}
+
+          <div class="dp-h">Responses</div>
+          <div class="dp-resp-list">${respListHtml}</div>
+
+          <div class="dp-h">Response schema &middot; <code style="color:#60a5fa;font-family:'JetBrains Mono',monospace;font-size:11.5px;padding:2px 8px;background:#0a0f1f;border:1px solid #1a2238;border-radius:4px;margin-left:6px;">${escapeHtml(e.schema.name)}</code></div>
+          <div class="dp-schema">${schemaRows}</div>
+        </div>
+        <div class="dp-op-right">
+          <div class="dp-code-block">
+            <div class="dp-code-tabs">
+              <span class="lbl">Request</span>
+              <div class="dp-code-tab active" data-lang="cURL">cURL</div>
+              <div class="dp-code-tab" data-lang="JavaScript">JavaScript</div>
+              <div class="dp-code-tab" data-lang="Python">Python</div>
+              <button class="dp-code-copy">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                Copy
+              </button>
+            </div>
+            <div class="dp-code-pane" data-lang="cURL" style="display:block;"><pre class="dp-code-body">${curl}</pre></div>
+            <div class="dp-code-pane" data-lang="JavaScript" style="display:none;"><pre class="dp-code-body">${js}</pre></div>
+            <div class="dp-code-pane" data-lang="Python" style="display:none;"><pre class="dp-code-body">${py}</pre></div>
+          </div>
+          <div class="dp-code-block nonsticky">
+            <div class="dp-code-tabs">
+              <span class="lbl">Response</span>
+              <div class="dp-code-tab active" data-lang="json">
+                <span class="dp-resp-badge ok"><span class="dot"></span>${escapeHtml(successCode)}</span>
+              </div>
+              <button class="dp-code-copy">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                Copy
+              </button>
+            </div>
+            <div class="dp-code-pane" data-lang="json" style="display:block;"><pre class="dp-code-body resp">${sample}</pre></div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // ================ LAB 4 ================
+  let wr_selected = 1;
+  let wr_tab = 'jwt';
+
+  function renderLab4() {
+    const rowsHtml = packets.map(p => `
+      <div class="wr-row ${p.cls}" data-pno="${p.no}">
+        <div>${p.no}</div>
+        <div>${escapeHtml(p.time)}</div>
+        <div>${escapeHtml(p.src)}</div>
+        <div>${escapeHtml(p.dst)}</div>
+        <div class="pproto">${escapeHtml(p.proto)}</div>
+        <div>${computePacketLength(p)}</div>
+        <div title="${escapeHtml(p.info)}">${escapeHtml(p.info)}</div>
+      </div>
+    `).join('');
+
+    app.innerHTML = `
+      ${gnav('WorkBridge Packet Analyzer')}
+      <div class="wr-root">
+        <div class="wr-header">
+          <div class="wr-cap">
+            <div class="wr-cap-mark">W</div>
+            <div>
+              <div class="wr-cap-title">Packet Analyzer<span class="file">wb-capture.pcapng</span></div>
+              <div class="wr-cap-meta"><span class="live">●</span> Intercepted pentest capture · 3 requests · target api.workbridge.io</div>
+            </div>
+          </div>
+          <div class="wr-tools">
+            <button class="wr-tbbtn" title="Start capture"><svg viewBox="0 0 24 24" fill="#22c55e"><path d="M8 5v14l11-7z"/></svg></button>
+            <button class="wr-tbbtn" title="Stop capture"><svg viewBox="0 0 24 24" fill="#ef4444"><rect x="6" y="6" width="12" height="12" rx="1"/></svg></button>
+            <button class="wr-tbbtn" title="Restart"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg></button>
+            <span class="wr-tbsep"></span>
+            <button class="wr-tbbtn" title="Open file"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg></button>
+            <button class="wr-tbbtn" title="Save"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg></button>
+            <span class="wr-tbsep"></span>
+            <button class="wr-tbbtn" title="Find packet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><line x1="17" y1="17" x2="21" y2="21" stroke-linecap="round"/></svg></button>
+          </div>
+        </div>
+
+        <div class="wr-filter-bar">
+          <span class="wr-filter-label">Filter</span>
+          <input class="wr-filter-input" value="http and ip.dst == 54.230.88.17">
+          <button class="wr-filter-btn apply">Apply</button>
+          <button class="wr-filter-btn">Clear</button>
+        </div>
+
+        <div class="wr-content">
+          <div class="wr-list-wrap">
+            <div class="wr-pane-hd"><span class="dot"></span>Packet List <span style="margin-left:auto;color:#5a6780;">3 of 3 displayed</span></div>
+            <div class="wr-list-head">
+              <div>No.</div>
+              <div>Time</div>
+              <div>Source</div>
+              <div>Destination</div>
+              <div>Protocol</div>
+              <div>Length</div>
+              <div>Info</div>
+            </div>
+            <div class="wr-list" id="wrList">${rowsHtml}</div>
+          </div>
+          <div class="wr-details-wrap">
+            <div class="wr-pane-hd"><span class="dot"></span>Packet Details <span id="wrDetailsTitle" style="margin-left:auto;color:#a4b0c6;text-transform:none;letter-spacing:0.2px;font-weight:500;">Frame #1</span></div>
+            <div class="wr-details" id="wrDetails"></div>
+          </div>
+          <div class="wr-bytes-wrap">
+            <div class="wr-pane-hd"><span class="dot"></span>Packet Bytes <span id="wrBytesTitle" style="margin-left:auto;color:#a4b0c6;text-transform:none;letter-spacing:0.2px;font-weight:500;">Hex · ASCII</span></div>
+            <div class="wr-bytes" id="wrBytes"></div>
+          </div>
+        </div>
+
+        <div class="wr-statusbar">
+          <span><span class="indicator"></span>Capture loaded</span>
+          <span class="sep"></span>
+          <span>Packets: 3 · Displayed: 3 (100.0%)</span>
+          <span class="sep"></span>
+          <span>Profile: Default</span>
+          <span class="loc">wb-capture.pcapng · 4.88 s</span>
+        </div>
+
+        <button class="wr-drawer-toggle" id="wrDrawerOpen">DECODERS · FINDINGS</button>
+
+        <aside class="wr-drawer" id="wrDrawer">
+          <div class="wr-drawer-header">
+            <div>
+              <h3>Analyst Toolkit</h3>
+              <div class="sub">Decode captured artifacts and submit findings</div>
+            </div>
+            <button class="wr-drawer-close" id="wrDrawerClose" title="Close">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="wr-drawer-tabs">
+            <button class="wr-drawer-tab ${wr_tab==='jwt'?'active':''}" data-tab="jwt">JWT Decoder</button>
+            <button class="wr-drawer-tab ${wr_tab==='b64'?'active':''}" data-tab="b64">Base64 Decoder</button>
+            <button class="wr-drawer-tab ${wr_tab==='quiz'?'active':''}" data-tab="quiz">Findings</button>
+          </div>
+          <div class="wr-drawer-body" id="wrDrawerBody"></div>
+        </aside>
+      </div>
+    `;
+
+    app.querySelectorAll('#wrList .wr-row').forEach(row => {
+      row.addEventListener('click', () => {
+        wr_selected = parseInt(row.dataset.pno, 10);
+        renderPacketDetails();
+      });
+    });
+
+    const drawer = document.getElementById('wrDrawer');
+    const toggle = document.getElementById('wrDrawerOpen');
+    document.getElementById('wrDrawerOpen').addEventListener('click', () => {
+      drawer.classList.add('open'); toggle.classList.add('hidden');
+    });
+    document.getElementById('wrDrawerClose').addEventListener('click', () => {
+      drawer.classList.remove('open'); toggle.classList.remove('hidden');
+    });
+    app.querySelectorAll('.wr-drawer-tab').forEach(t => {
+      t.addEventListener('click', () => {
+        wr_tab = t.dataset.tab;
+        app.querySelectorAll('.wr-drawer-tab').forEach(x => x.classList.toggle('active', x.dataset.tab === wr_tab));
+        renderDrawerBody();
+      });
+    });
+
+    renderPacketDetails();
+    renderDrawerBody();
+  }
+
+  function computePacketLength(p) {
+    let total = 74;
+    total += ('Host: ' + p.http.headers[0][1]).length + 2;
+    p.http.headers.forEach(h => { total += (h[0] + ': ' + h[1]).length + 2; });
+    total += p.http.request.length + 2;
+    return total;
+  }
+
+  function renderPacketDetails() {
+    const p = packets.find(x => x.no === wr_selected);
+    if (!p) return;
+    document.getElementById('wrDetailsTitle').textContent = `Frame #${p.no} — ${p.info}`;
+    document.getElementById('wrBytesTitle').textContent = `Frame #${p.no} · Hex · ASCII`;
+
+    const frameLen = computePacketLength(p);
+    const ethLen = frameLen - 14;
+    const ipLen = ethLen - 20;
+    const tcpLen = ipLen - 32;
+
+    const hdrRows = p.http.headers.map(h => ({ k: h[0], v: h[1] }));
+    const authIdx = hdrRows.findIndex(h => h.k === 'Authorization');
+    const authDetail = authIdx >= 0 ? decodeAuthAnnotation(hdrRows[authIdx].v) : null;
+
+    const httpLines = [
+      `Request Method: <strong>${escapeHtml(p.http.method)}</strong>`,
+      `Request URI: <strong>${escapeHtml(p.http.path)}</strong>`,
+      `Request Version: HTTP/1.1`,
+    ];
+
+    const tree = [
+      {
+        label: `Frame ${p.no}: ${frameLen} bytes on wire (${frameLen * 8} bits), ${frameLen} bytes captured`,
+        children: [
+          { label: `Encapsulation type: Ethernet (1)`, leaf: true },
+          { label: `Arrival Time: Apr 17, 2026 14:02:${p.time.split('.')[0].padStart(2,'0')}.${(p.time.split('.')[1]||'000000')} UTC`, leaf: true },
+          { label: `Frame Length: ${frameLen} bytes (${frameLen * 8} bits)`, leaf: true },
+          { label: `Capture Length: ${frameLen} bytes (${frameLen * 8} bits)`, leaf: true },
+          { label: `[Protocols in frame: eth:ethertype:ip:tcp:tls:http]`, leaf: true }
+        ]
+      },
+      {
+        label: `Ethernet II, Src: Apple_4a:22:0c (3c:22:fb:4a:22:0c), Dst: Amazon_8f:1c:d0 (06:a8:91:8f:1c:d0)`,
+        children: [
+          { label: `Destination: Amazon_8f:1c:d0 (06:a8:91:8f:1c:d0)`, leaf: true },
+          { label: `Source: Apple_4a:22:0c (3c:22:fb:4a:22:0c)`, leaf: true },
+          { label: `Type: IPv4 (0x0800)`, leaf: true }
+        ]
+      },
+      {
+        label: `Internet Protocol Version 4, Src: ${p.src}, Dst: ${p.dst}`,
+        children: [
+          { label: `0100 .... = Version: 4`, leaf: true },
+          { label: `.... 0101 = Header Length: 20 bytes (5)`, leaf: true },
+          { label: `Total Length: ${ipLen}`, leaf: true },
+          { label: `Time to Live: 64`, leaf: true },
+          { label: `Protocol: TCP (6)`, leaf: true },
+          { label: `Source Address: ${p.src}`, leaf: true },
+          { label: `Destination Address: ${p.dst}`, leaf: true }
+        ]
+      },
+      {
+        label: `Transmission Control Protocol, Src Port: ${p.sport}, Dst Port: ${p.dport}, Seq: ${p.seq}, Len: ${tcpLen}`,
+        children: [
+          { label: `Source Port: ${p.sport}`, leaf: true },
+          { label: `Destination Port: ${p.dport}`, leaf: true },
+          { label: `Sequence Number: ${p.seq}`, leaf: true },
+          { label: `Acknowledgment Number: ${p.ack}`, leaf: true },
+          { label: `Flags: 0x018 (PSH, ACK)`, leaf: true },
+          { label: `Window: 64240`, leaf: true }
+        ]
+      },
+      {
+        label: `Hypertext Transfer Protocol`,
+        children: [
+          {
+            label: `<strong>${escapeHtml(p.http.request)}</strong>`,
+            children: httpLines.map(l => ({ label: l, leaf: true }))
+          },
+          ...hdrRows.map((h, i) => {
+            const special = i === authIdx;
+            const label = special
+              ? `<span style="background:rgba(245,158,11,0.2);color:#fbbf24;padding:1px 4px;border-radius:3px;">${escapeHtml(h.k)}: ${escapeHtml(h.v)}\\r\\n</span>`
+              : `${escapeHtml(h.k)}: ${escapeHtml(h.v)}\\r\\n`;
+            if (special && authDetail) {
+              return { label: label, children: authDetail.map(x => ({ label: x, leaf: true })) };
+            }
+            return { label: label, leaf: true };
+          }),
+          { label: `\\r\\n`, leaf: true },
+          { label: `[Full request URI: https://${p.http.headers[0][1]}${p.http.path}]`, leaf: true },
+          { label: `[HTTP request 1/1]`, leaf: true }
+        ]
+      }
+    ];
+
+    document.getElementById('wrDetails').innerHTML = renderTree(tree, 0);
+
+    app.querySelectorAll('#wrDetails .toggle').forEach(t => {
+      t.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        const children = t.parentElement.nextElementSibling;
+        if (children && children.classList.contains('wr-children')) {
+          children.classList.toggle('collapsed');
+          t.textContent = children.classList.contains('collapsed') ? '\u25B8' : '\u25BE';
+        }
+      });
+    });
+
+    app.querySelectorAll('#wrList .wr-row').forEach(r => r.classList.toggle('selected', parseInt(r.dataset.pno,10) === wr_selected));
+    document.getElementById('wrBytes').innerHTML = renderHex(buildRawBytes(p));
+  }
+
+  function decodeAuthAnnotation(v) {
+    if (v.startsWith('Bearer ')) {
+      const parts = v.substring(7).split('.');
+      if (parts.length === 3) {
+        return [
+          `Authentication Scheme: Bearer (JWT)`,
+          `JWT Header (base64url): ${escapeHtml(parts[0])}`,
+          `JWT Payload (base64url): ${escapeHtml(parts[1])}`,
+          `JWT Signature: ${escapeHtml(parts[2])}`,
+          `[Note: payload is base64url-encoded and reversible without the signing secret]`
+        ];
+      }
+    }
+    if (v.startsWith('Basic ')) {
+      return [
+        `Authentication Scheme: Basic`,
+        `Credentials (base64): ${escapeHtml(v.substring(6))}`,
+        `[Note: Base64 is reversible, not encryption]`
+      ];
+    }
+    return null;
+  }
+
+  function renderTree(nodes) {
+    return nodes.map(n => {
+      if (n.leaf || !n.children) {
+        return `<div class="wr-node leaf"><span class="toggle"></span>${n.label}</div>`;
+      }
+      return `
+        <div class="wr-node"><span class="toggle">&#9662;</span>${n.label}</div>
+        <div class="wr-children">${renderTree(n.children)}</div>
+      `;
+    }).join('');
+  }
+
+  function buildRawBytes(p) {
+    let s = p.http.request + '\r\n';
+    p.http.headers.forEach(h => { s += h[0] + ': ' + h[1] + '\r\n'; });
+    s += '\r\n';
+    return s;
+  }
+
+  function renderHex(s) {
+    const bytes = [];
+    for (let i = 0; i < s.length; i++) bytes.push(s.charCodeAt(i) & 0xff);
+    let out = '';
+    for (let i = 0; i < bytes.length; i += 16) {
+      const slice = bytes.slice(i, i + 16);
+      const hex = slice.map(b => b.toString(16).padStart(2, '0')).join(' ');
+      const padded = hex.padEnd(16 * 3 - 1, ' ');
+      const ascii = slice.map(b => (b >= 32 && b < 127) ? String.fromCharCode(b) : '.').join('');
+      const off = i.toString(16).padStart(4, '0');
+      out += `<span class="off">${off}</span>   ${escapeHtml(padded)}   ${escapeHtml(ascii)}\n`;
+    }
+    return out;
+  }
+
+  function renderDrawerBody() {
+    const body = document.getElementById('wrDrawerBody');
+    if (wr_tab === 'jwt') {
+      body.innerHTML = `
+        <div class="wr-tool">
+          <h4>JWT Decoder</h4>
+          <div class="desc">Paste a JSON Web Token (three dot-separated base64url segments). The payload decodes without knowing the signing secret.</div>
+          <textarea id="jwtIn" placeholder="eyJhbGciOi..." spellcheck="false"></textarea>
+          <button id="jwtBtn" class="decode">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            Decode token
+          </button>
+          <div class="output-label">Decoded output</div>
+          <div class="output empty" id="jwtOut">// awaiting input</div>
+        </div>
+      `;
+      document.getElementById('jwtBtn').addEventListener('click', jwtDecode);
+    } else if (wr_tab === 'b64') {
+      body.innerHTML = `
+        <div class="wr-tool">
+          <h4>Base64 Decoder</h4>
+          <div class="desc">Decodes a standard Base64-encoded string back to its UTF-8 plaintext. Works on credentials, binary blobs, and encoded payloads.</div>
+          <textarea id="b64In" placeholder="d29ya2JyaWRnZV9h..." spellcheck="false"></textarea>
+          <button id="b64Btn" class="decode">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            Decode
+          </button>
+          <div class="output-label">Decoded output</div>
+          <div class="output empty" id="b64Out">// awaiting input</div>
+        </div>
+      `;
+      document.getElementById('b64Btn').addEventListener('click', b64Decode);
+    } else {
+      body.innerHTML = `
+        <div class="wr-quiz">
+          <div class="wr-quiz-hd">
+            <div class="icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+            </div>
+            <h3>Analyst Findings</h3>
+          </div>
+          <div class="sub">Submit findings from your packet analysis. All three must be correct — one wrong answer resets the form.</div>
+
+          <div class="wr-q">
+            <label><span class="num">1</span>Role of the user identified in the JWT Bearer token</label>
+            <input id="r4q1" placeholder="role_value" autocomplete="off" spellcheck="false">
+            <div class="tip">Hint: decode the JWT payload in frame #1.</div>
+          </div>
+          <div class="wr-q">
+            <label><span class="num">2</span>Credentials exposed in the Basic Auth header</label>
+            <input id="r4q2" placeholder="username:password" autocomplete="off" spellcheck="false">
+            <div class="tip">Hint: Base64-decode the credential blob in frame #2.</div>
+          </div>
+          <div class="wr-q">
+            <label><span class="num">3</span>API key leaked in the URL query string</label>
+            <input id="r4q3" placeholder="key_value" autocomplete="off" spellcheck="false">
+            <div class="tip">Hint: this credential is visible in frame #3 without decoding — that&rsquo;s the point.</div>
+          </div>
+
+          <button class="wr-submit" id="r4submit">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+            Submit report
+          </button>
+          <div id="r4result"></div>
+        </div>
+      `;
+      document.getElementById('r4submit').addEventListener('click', () => {
+        const v1 = document.getElementById('r4q1').value;
+        const v2 = document.getElementById('r4q2').value;
+        const v3 = document.getElementById('r4q3').value;
+        const r = document.getElementById('r4result');
+        if (!v1.trim() || !v2.trim() || !v3.trim()) {
+          r.innerHTML = `<div class="wr-err">All three fields are required.</div>`;
+          return;
+        }
+        const ok1 = norm(v1) === norm(d(K.q4.a[0]));
+        const ok2 = v2.trim() === d(K.q4.a[1]);
+        const ok3 = v3.trim() === d(K.q4.a[2]);
+        if (ok1 && ok2 && ok3) {
+          r.innerHTML = flagBlock(d(K.q4.f));
+        } else {
+          document.getElementById('r4q1').value = '';
+          document.getElementById('r4q2').value = '';
+          document.getElementById('r4q3').value = '';
+          r.innerHTML = `<div class="wr-err">One or more findings are incorrect. All entries cleared &mdash; re-analyze the packets.</div>`;
+        }
+      });
+    }
+  }
+
+  function b64Decode() {
+    const v = document.getElementById('b64In').value.trim();
+    const out = document.getElementById('b64Out');
+    out.classList.remove('empty');
+    if (!v) { out.innerHTML = '<span class="bad">// no input</span>'; return; }
+    try {
+      const decoded = atob(v);
+      out.innerHTML = '<span class="ok">&#10003; Decoded</span>\n\n' + escapeHtml(decoded);
+    } catch (e) {
+      out.innerHTML = '<span class="bad">&#10007; Error: invalid base64</span>';
+    }
+  }
+
+  function jwtDecode() {
+    const v = document.getElementById('jwtIn').value.trim();
+    const out = document.getElementById('jwtOut');
+    out.classList.remove('empty');
+    if (!v) { out.innerHTML = '<span class="bad">// no input</span>'; return; }
+    const parts = v.split('.');
+    if (parts.length !== 3) { out.innerHTML = '<span class="bad">&#10007; Error: JWT must have 3 segments</span>'; return; }
+    try {
+      const b64url = (s) => {
+        let t = s.replace(/-/g, '+').replace(/_/g, '/');
+        while (t.length % 4) t += '=';
+        return atob(t);
+      };
+      const h = b64url(parts[0]);
+      const p = b64url(parts[1]);
+      let hfmt = h, pfmt = p;
+      try { hfmt = JSON.stringify(JSON.parse(h), null, 2); } catch (e) {}
+      try { pfmt = JSON.stringify(JSON.parse(p), null, 2); } catch (e) {}
+      out.innerHTML =
+        '<span class="ok">&#10003; Decoded</span>\n\n<span class="k">HEADER</span>\n' + colorJson(hfmt) +
+        '\n\n<span class="k">PAYLOAD</span>\n' + colorJson(pfmt) +
+        '\n\n<span class="k">SIGNATURE</span>\n<span class="v">' + escapeHtml(parts[2]) + '</span>';
+    } catch (e) {
+      out.innerHTML = '<span class="bad">&#10007; Error: unable to decode segments</span>';
+    }
+  }
+
+  function colorJson(s) {
+    return escapeHtml(s)
+      .replace(/(&quot;[^&]*?&quot;)(\s*:)/g, '<span class="k">$1</span>$2')
+      .replace(/:\s*(&quot;[^&]*?&quot;)/g, ': <span class="v">$1</span>')
+      .replace(/:\s*(-?\d+(?:\.\d+)?)/g, ': <span class="v">$1</span>');
+  }
+
+  route();
+})();
+</script>
+</body>
+</html>
